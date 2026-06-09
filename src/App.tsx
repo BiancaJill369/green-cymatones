@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage'
 import AuthPage from './pages/AuthPage'
 import SubscribePage from './pages/SubscribePage'
 import GardenPage from './pages/GardenPage'
+import OraclePage from './pages/OraclePage'
 
 export default function App() {
   return (
@@ -19,6 +20,14 @@ export default function App() {
             element={
               <AuthGuard>
                 <GardenPage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/oracle"
+            element={
+              <AuthGuard>
+                <OraclePage />
               </AuthGuard>
             }
           />

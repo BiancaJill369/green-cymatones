@@ -1,5 +1,17 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 6b: Oracle Draw Flow + Seed Drop ✅ DONE (code)
+
+- `components/oracle/DeckSelector.tsx` — 3 tiles themed by `deck.theme_color`; drawn decks show their card face-up + "Drawn today" (disabled); all-drawn → "Come back tomorrow for fresh cards."
+- `components/oracle/CardDraw.tsx` — 3D flip (rotateY 600ms) to the face: name + number + visual_description, forecast revealed line-by-line, affirmation pinned in Cormorant; "seed planted in your {bed}" + Back to decks / Back to garden.
+- `pages/OraclePage.tsx` + `styles/oracle.css` (garden palette, prefers-reduced-motion).
+- `oracleStore`: added `drawCard(deckId, userId)` (one draw/deck/day, avoids last-5 repeat, inserts `green_daily_draws` + drops a `growth_stage:0` seed into the matching bed) and `loadTodayDraws`.
+- `App.tsx`: `/oracle` behind `AuthGuard`. `GardenView` HUD: "🃏 Draw today's cards" link.
+- **Verified in browser** (temp preview routes + seeded sample data, all removed before commit): DeckSelector renders 3 theme-colored tiles; tapping draws → CardDraw flips to the card with line-by-line forecast, gold affirmation, and seed confirmation; drawn decks lock with "Drawn today"; all-drawn shows the come-back message. Build clean.
+- **Note:** the live end-to-end draw (real `green_daily_draws` row + seed appearing in the garden) needs your real Supabase + a logged-in subscriber — the local sandbox can't reach Supabase. The logic matches the chunk spec exactly. New seeds show in the garden on next load (growth over days + edit-mode are Chunk 7).
+
+---
+
 ## 2026-06-08 — CHUNK 6a: Oracle Schema + Decks + 99 Cards ✅ DONE
 
 - **DB (Bianca, already applied):** ran `004_green_oracle.sql` + `004b_seed_oracle_cards.sql` in the CT Supabase — 3 decks, 99 cards (33/deck), `green_daily_draws`, the garden-element card FK, all with RLS. Confirmed by Bianca.

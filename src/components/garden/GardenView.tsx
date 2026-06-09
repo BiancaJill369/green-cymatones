@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import '../../styles/garden.css'
 import { useTimeOfDay } from '../../hooks/useTimeOfDay'
 import { useAuth } from '../../hooks/useAuth'
@@ -112,13 +112,21 @@ export default function GardenView() {
         <span className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur">
           Welcome, {name}
         </span>
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur transition hover:bg-night-sky/70"
-        >
-          Sign out
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/oracle"
+            className="rounded-full bg-green-500/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-green-400"
+          >
+            🃏 Draw today’s cards
+          </Link>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur transition hover:bg-night-sky/70"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
     </div>
   )
