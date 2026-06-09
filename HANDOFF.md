@@ -1,5 +1,27 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 3: 8-Digit Code Login + Subscribe-First Gate ✅ DONE (code)
+
+**What shipped** (login-only passwordless OTP; no free tier; account = subscription)
+- `stores/userStore.ts`, `providers/AuthProvider.tsx`, `hooks/useAuth.ts`
+- `lib/greenSubscription.ts` (`fetchGreenSubscription`, `hasActiveGreen` = active|trialing)
+- `lib/greenProfile.ts` (`ensureGreenProfile` — called ONLY when sub is active)
+- `components/auth/`: `EmailEntryForm` (step 1, `shouldCreateUser:false`), `CodeEntryForm` (step 2, 8-digit), `AuthGuard`
+- `pages/`: `AuthPage` (email→code→gate-route), `SubscribePage`, `GardenPage`; updated `LandingPage` (CTAs) + `App.tsx` (routes + `<AuthProvider>`)
+- Build clean. Verified locally: routes render, AuthGuard bounces no-session→/auth, unknown email→"No Green account"→/subscribe, no account created.
+
+**⚠️ ACTION REQUIRED — Supabase Auth setting (you):**
+The whole flow depends on the email OTP being **8 digits**. In the **CymaTones** Supabase dashboard → **Authentication → Providers → Email** (or **Auth → Settings → Email**):
+- Set **OTP length = 8** (project-wide).
+- Make sure the email **OTP / magic-link template** sends the code token (`{{ .Token }}`), not just a magic link.
+- Email signups can stay on; login here is locked to existing users via `shouldCreateUser:false`, so no accounts get created from the login screen.
+
+**Local dev note:** the app now requires real env vars to boot (`createClient` throws on empty URL). Copy `.env.example` → `.env` and fill the green Supabase URL + anon key before running `npm run dev` locally. Vercel already has these in its env.
+
+**Full end-to-end test (needs a real subscriber):** can't be done until Chunk 4 creates accounts at Stripe checkout. Once you have a subscriber row in `green_subscriptions`, the happy path (email → 8-digit code → /garden) becomes testable.
+
+---
+
 ## 2026-06-08 — CHUNK 2: Identity Schema (Migration 001)
 
 **Tenancy note:** green runs on the **SHARED CymaTones Supabase** project (NOT its own). All green tables use the `green_` prefix. No `auth.users` trigger — shared auth pool.
