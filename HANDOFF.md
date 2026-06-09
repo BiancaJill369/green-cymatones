@@ -1,5 +1,13 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 6a: Oracle Schema + Decks + 99 Cards ✅ DONE
+
+- **DB (Bianca, already applied):** ran `004_green_oracle.sql` + `004b_seed_oracle_cards.sql` in the CT Supabase — 3 decks, 99 cards (33/deck), `green_daily_draws`, the garden-element card FK, all with RLS. Confirmed by Bianca.
+- **Code:** `stores/oracleStore.ts` added — `decks`, `cards`, `todayDraws` + `loadDecks()` reading `green_oracle_decks` + `green_oracle_cards`. Build clean. **No UI yet (that's 6b).**
+- ⚠️ **Repo bookkeeping gap (non-blocking):** the two `.sql` files are **not** saved under `supabase/migrations/` — their text never came through in chat. The tables are live in Supabase so nothing is broken; paste the SQL anytime and I'll backfill `004_green_oracle.sql` + `004b_seed_oracle_cards.sql` so the repo stays the source of truth.
+
+---
+
 ## 2026-06-08 — CHUNK 5.1: Tiered Garden Layout (matches approved mock) ✅ DONE (code)
 
 Rebuilt `GardenView` to match the approved `garden_tiered_mock.html` (lifted its CSS/markup), with night driven by `useTimeOfDay()` (a `.night` class on `.stage`) instead of the mock's toggle button. No DB change.
