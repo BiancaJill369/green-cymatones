@@ -1,13 +1,16 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../../styles/garden.css'
 import { useTimeOfDay } from '../../hooks/useTimeOfDay'
 import { useAuth } from '../../hooks/useAuth'
 import { useGardenStore } from '../../stores/gardenStore'
-import type { BedType } from '../../stores/gardenStore'
+import type { BedType, GardenElement as El } from '../../stores/gardenStore'
+import { useOracleStore } from '../../stores/oracleStore'
 import SkyBackground from './SkyBackground'
 import GardenBed from './GardenBed'
+import GardenElement from './GardenElement'
 import Creatures from './Creatures'
+import Toasts from '../common/Toasts'
 
 export default function GardenView() {
   const timeOfDay = useTimeOfDay()
@@ -16,17 +19,26 @@ export default function GardenView() {
   const beds = useGardenStore((s) => s.beds)
   const elements = useGardenStore((s) => s.elements)
   const loadGarden = useGardenStore((s) => s.loadGarden)
+  const oracleCards = useOracleStore((s) => s.cards)
+  const oracleLoaded = useOracleStore((s) => s.isLoaded)
+  const loadDecks = useOracleStore((s) => s.loadDecks)
+
+  const [selected, setSelected] = useState<El | null>(null)
 
   useEffect(() => {
     if (user?.id) void loadGarden(user.id)
   }, [user?.id, loadGarden])
+
+  // oracle cards power the tap-sheet (source card name + affirmation)
+  useEffect(() => {
+    if (!oracleLoaded) void loadDecks()
+  }, [oracleLoaded, loadDecks])
 
   const elementsFor = (type: BedType) => {
     const bed = beds.find((b) => b.bed_type === type)
     return bed ? elements.filter((e) => e.bed_id === bed.id) : []
   }
 
-  // Forest trees: ~1 per 150px width, randomized scale (0.7–1.6), x-jitter, z by scale.
   const trees = useMemo(() => {
     const width = typeof window !== 'undefined' ? window.innerWidth : 1200
     const n = Math.max(7, Math.floor(width / 150))
@@ -53,13 +65,14 @@ export default function GardenView() {
     navigate('/', { replace: true })
   }
 
+  const selectedCard = selected ? oracleCards.find((c) => c.id === selected.card_id) : undefined
+
   return (
     <div className={`stage${timeOfDay === 'night' ? ' night' : ''}`}>
-      {/* SKY + horizon */}
       <SkyBackground timeOfDay={timeOfDay} />
       <div className="horizon" aria-hidden="true" />
 
-      {/* FOREST FLOOR (full width) */}
+      {/* FOREST FLOOR */}
       <div className="forest">
         <div className="ground" />
         {trees.map((t, i) => (
@@ -81,25 +94,27 @@ export default function GardenView() {
             style={{ left: `${f.left}%`, top: `${f.top}%`, animationDelay: f.delay }}
           />
         ))}
-        {/* real forest elements (trees) when they exist */}
+        {/* real planted forest elements */}
         {elementsFor('forest_floor').map((el) => (
-          <div
-            key={el.id}
-            className="tree"
-            style={{ left: `${el.position_x}%`, transform: 'translateX(-50%) scale(1)' }}
-          >
-            <div className="tree-inner">
-              <div className="trunk" />
-              <div className="canopy" />
-            </div>
-          </div>
+          <GardenElement key={el.id} element={el} variant="forest" onTap={setSelected} />
         ))}
       </div>
 
       {/* FOREGROUND beds */}
       <div className="foreground">
-        <GardenBed variant="herb" label="Herb Garden" elements={elementsFor('herb_garden')} divider />
-        <GardenBed variant="meadow" label="Wild Meadow" elements={elementsFor('wild_meadow')} />
+        <GardenBed
+          variant="herb"
+          label="Herb Garden"
+          planted={elementsFor('herb_garden')}
+          onTapElement={setSelected}
+          divider
+        />
+        <GardenBed
+          variant="meadow"
+          label="Wild Meadow"
+          planted={elementsFor('wild_meadow')}
+          onTapElement={setSelected}
+        />
       </div>
 
       <Creatures timeOfDay={timeOfDay} />
@@ -128,6 +143,32 @@ export default function GardenView() {
           </button>
         </div>
       </div>
+
+      <Toasts />
+
+      {/* element detail sheet */}
+      {selected && (
+        <div
+          className="absolute inset-x-0 bottom-0 z-40 flex flex-col items-center gap-2 rounded-t-2xl bg-night-sky/90 px-6 py-5 text-center text-moon backdrop-blur"
+          style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
+        >
+          <p className="text-lg" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            {selectedCard?.name ?? 'A planted seed'}
+          </p>
+          {selectedCard?.affirmation && (
+            <p className="italic text-green-200" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              {selectedCard.affirmation}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={() => setSelected(null)}
+            className="mt-1 rounded-full border border-green-700/50 px-4 py-1.5 text-sm hover:bg-green-900/40"
+          >
+            Close
+          </button>
+        </div>
+      )}
     </div>
   )
 }

@@ -311,6 +311,38 @@
 .stage .lb-1 { animation-duration: 30s; }
 .stage .lb-2 { animation-duration: 42s; animation-delay: -10s; bottom: 16%; }
 
+/* ---------------- real planted elements (Chunk 7a) ---------------- */
+.stage .g-el {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 5;
+}
+.stage .g-tree { bottom: 36%; transform-origin: bottom center; animation: gdSway 6s ease-in-out infinite; }
+.stage .g-low { bottom: 12px; transform-origin: bottom center; }
+.stage .gt-canopy {
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #5ce08a, #2f8f4e 60%, #1f5b3a);
+  box-shadow: inset -4px -6px 10px rgba(0, 0, 0, 0.25);
+}
+.stage .gt-trunk {
+  width: 8px;
+  background: linear-gradient(180deg, #5a3b22, #42301d);
+  border-radius: 3px;
+}
+.stage .g-seed {
+  width: 11px;
+  height: 9px;
+  border-radius: 50% 50% 45% 45%;
+  background: radial-gradient(circle at 50% 30%, #7a5230, #4a3120);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .stage * { animation: none !important; transition: none !important; }
   .stage .tree-inner { transform: scaleY(1); }

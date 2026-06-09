@@ -1,18 +1,20 @@
 import { useMemo } from 'react'
-import type { GardenElement } from '../../stores/gardenStore'
+import type { GardenElement as El } from '../../stores/gardenStore'
+import GardenElement from './GardenElement'
 
 interface Props {
   variant: 'herb' | 'meadow'
   label: string
-  elements: GardenElement[]
+  planted: El[]
+  onTapElement: (el: El) => void
   divider?: boolean
 }
 
 const FLOWER_COLORS = ['#ffd76b', '#ff8aa8', '#cdb0ff', '#ff8a5b', '#fff0a8']
 
-export default function GardenBed({ variant, label, elements, divider }: Props) {
-  // Placeholder low growth, generated client-side (herb = sprouts; meadow = sprouts + flowers).
-  const sprouts = useMemo(() => {
+export default function GardenBed({ variant, label, planted, onTapElement, divider }: Props) {
+  // Ambient (placeholder) greenery for atmosphere — the real plants render on top.
+  const ambient = useMemo(() => {
     const count = variant === 'herb' ? 16 : 18
     return Array.from({ length: count }, () => {
       const height = 20 + Math.random() * 46
@@ -29,17 +31,17 @@ export default function GardenBed({ variant, label, elements, divider }: Props) 
     <div className={`bed ${variant}`}>
       <div className="bed-label">{label}</div>
 
-      {sprouts.map((s, i) => (
-        <div key={`s-${i}`} className="sprout" style={{ height: `${s.height}px`, animationDelay: s.delay }}>
+      {ambient.map((s, i) => (
+        <div key={`a-${i}`} className="sprout" style={{ height: `${s.height}px`, animationDelay: s.delay }}>
           {s.flower && (
             <span className="flower" style={{ background: `radial-gradient(circle,#fff,${s.flower})` }} />
           )}
         </div>
       ))}
 
-      {/* real planted low growth (none yet; kept inside the bed when it exists) */}
-      {elements.map((el) => (
-        <div key={el.id} className="sprout" style={{ height: `${30 + el.growth_stage * 12}px` }} />
+      {/* real, persistent planted elements */}
+      {planted.map((el) => (
+        <GardenElement key={el.id} element={el} variant="low" onTap={onTapElement} />
       ))}
 
       {divider && <div className="divider" />}

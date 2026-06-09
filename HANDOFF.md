@@ -1,5 +1,19 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 7a: Seed Growth Over Days + Real Element Rendering ✅ DONE (code)
+
+- **Growth model:** `gardenStore.loadGarden` now runs `applyGrowth` after fetching elements — one stage per real day since `growth_started_at` (capped at 5), persists changed stages, and stamps `growth_completed_at` on first reaching stage 5.
+- **Bloom toast:** newly-bloomed plants push a "{card} has fully bloomed" toast (new `stores/toastStore.ts` + `components/common/Toasts.tsx`, auto-dismiss 4s; card name looked up in `oracleStore.cards`).
+- **Real elements:** `components/garden/GardenElement.tsx` renders by `element_type` + `growth_stage`:
+  - forest (`forest_floor`): stage 0 mound → 5 full canopy tree (trunk appears at stage 2+);
+  - herb/meadow: stage 0 seed dot → 1 sprout → … → 4 bud → 5 open flower.
+  `GardenView` maps real `green_garden_elements` into their bed by `bed_id` at `position_x`; ambient placeholder greenery stays underneath for atmosphere.
+- **Tap sheet:** tapping a plant opens a bottom sheet with its source card name + affirmation.
+- **Verified in browser** (temp preview route + seeded elements at stages 0/2/3/4/5, removed before commit): real trees ramp 21→106→179px across stages, low plants ramp by stage (seed→flower), tap sheet shows "Basil — The Protector" + "I AM rooted and protected.", bloom toast renders. Build clean; reduced-motion preserved.
+- **Live confirm (you):** draw a card → stage-0 seed appears in its bed; back-date that row's `growth_started_at` in Supabase → its stage advances on reload (0→5); hitting stage 5 fires the bloom toast + stamps `growth_completed_at`. (Local sandbox can't reach Supabase, so the day-by-day advance is verified by the stage-rendering + the spec-exact growth math.)
+
+---
+
 ## 2026-06-08 — CHUNK 6b: Oracle Draw Flow + Seed Drop ✅ DONE (code)
 
 - `components/oracle/DeckSelector.tsx` — 3 tiles themed by `deck.theme_color`; drawn decks show their card face-up + "Drawn today" (disabled); all-drawn → "Come back tomorrow for fresh cards."
