@@ -1,5 +1,17 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 7b: Garden Edit Mode ✅ DONE (code)
+
+- **`gardenStore`** added: `isEditMode`, `selectedId`, `dirty` set, `userId`, + `toggleEditMode`, `selectElement`, `updateElementLocal` (local + marks dirty), `removeElement` (DB delete + toast), `saveLayout` (persist dirty `position_x/y/scale/rotation` + exit), `cancelEdit` (re-fetch from DB + exit).
+- **Entry:** "✎ Arrange garden" button in the HUD; **long-press** a plant also enters edit mode and selects it.
+- **Edit UX:** tap a plant → glow ring + control panel (Size slider 0.5–2, Rotate slider −180–180, 🗑 Remove); **drag** the plant to move (pointer events, position computed as % of the plant's bed rect, clamped 0–100). Sticky **Save / Cancel** bar. `is_movable === false` fixtures are skipped.
+- **Rendering:** `GardenElement` applies `transform: translateX(-50%) scale() rotate()` with `transform-origin: bottom center`; `touch-action: none` for smooth touch drag.
+- Outside edit mode, tapping a plant still opens the read-only card/affirmation sheet (7a).
+- **Verified in browser** (temp route + seeded plant, removed before commit): entering edit mode shows the action bar + hint; selecting shows the ring + panel + 2 sliders + Remove; scale→1.5 and rotate→60 apply to the transform independently; a simulated drag moved the plant to 72%/50% within its bed (clamped); dirty-tracking flags the element. Build clean; reduced-motion preserved.
+- **Live confirm (you):** drag/scale/rotate a plant → **Save** persists (reload keeps the new values); **Cancel** reverts to last saved; remove deletes the row. (DB writes hang in the local sandbox, so Save/Cancel/Remove persistence is verified by code against the spec, not live.)
+
+---
+
 ## 2026-06-08 — CHUNK 7a: Seed Growth Over Days + Real Element Rendering ✅ DONE (code)
 
 - **Growth model:** `gardenStore.loadGarden` now runs `applyGrowth` after fetching elements — one stage per real day since `growth_started_at` (capped at 5), persists changed stages, and stamps `growth_completed_at` on first reaching stage 5.

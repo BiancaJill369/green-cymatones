@@ -19,17 +19,24 @@ export default function GardenView() {
   const beds = useGardenStore((s) => s.beds)
   const elements = useGardenStore((s) => s.elements)
   const loadGarden = useGardenStore((s) => s.loadGarden)
+  const isEditMode = useGardenStore((s) => s.isEditMode)
+  const selectedId = useGardenStore((s) => s.selectedId)
+  const toggleEditMode = useGardenStore((s) => s.toggleEditMode)
+  const selectElement = useGardenStore((s) => s.selectElement)
+  const updateElementLocal = useGardenStore((s) => s.updateElementLocal)
+  const removeElement = useGardenStore((s) => s.removeElement)
+  const saveLayout = useGardenStore((s) => s.saveLayout)
+  const cancelEdit = useGardenStore((s) => s.cancelEdit)
   const oracleCards = useOracleStore((s) => s.cards)
   const oracleLoaded = useOracleStore((s) => s.isLoaded)
   const loadDecks = useOracleStore((s) => s.loadDecks)
 
-  const [selected, setSelected] = useState<El | null>(null)
+  const [readOnlyEl, setReadOnlyEl] = useState<El | null>(null)
 
   useEffect(() => {
     if (user?.id) void loadGarden(user.id)
   }, [user?.id, loadGarden])
 
-  // oracle cards power the tap-sheet (source card name + affirmation)
   useEffect(() => {
     if (!oracleLoaded) void loadDecks()
   }, [oracleLoaded, loadDecks])
@@ -65,10 +72,24 @@ export default function GardenView() {
     navigate('/', { replace: true })
   }
 
-  const selectedCard = selected ? oracleCards.find((c) => c.id === selected.card_id) : undefined
+  // tap routing: edit mode selects for editing; otherwise opens the read-only sheet
+  const handleSelect = (el: El) => {
+    if (isEditMode) selectElement(el.id)
+    else setReadOnlyEl(el)
+  }
+  const handleLongPress = (el: El) => {
+    if (!isEditMode) {
+      toggleEditMode()
+      selectElement(el.id)
+    }
+  }
+  const handleMove = (id: string, x: number, y: number) => updateElementLocal(id, { position_x: x, position_y: y })
+
+  const selectedEl = isEditMode && selectedId ? elements.find((e) => e.id === selectedId) : undefined
+  const readOnlyCard = readOnlyEl ? oracleCards.find((c) => c.id === readOnlyEl.card_id) : undefined
 
   return (
-    <div className={`stage${timeOfDay === 'night' ? ' night' : ''}`}>
+    <div className={`stage${timeOfDay === 'night' ? ' night' : ''}${isEditMode ? ' editing' : ''}`}>
       <SkyBackground timeOfDay={timeOfDay} />
       <div className="horizon" aria-hidden="true" />
 
@@ -94,9 +115,17 @@ export default function GardenView() {
             style={{ left: `${f.left}%`, top: `${f.top}%`, animationDelay: f.delay }}
           />
         ))}
-        {/* real planted forest elements */}
         {elementsFor('forest_floor').map((el) => (
-          <GardenElement key={el.id} element={el} variant="forest" onTap={setSelected} />
+          <GardenElement
+            key={el.id}
+            element={el}
+            variant="forest"
+            editMode={isEditMode}
+            selected={selectedId === el.id}
+            onSelect={handleSelect}
+            onLongPress={handleLongPress}
+            onMove={handleMove}
+          />
         ))}
       </div>
 
@@ -106,14 +135,22 @@ export default function GardenView() {
           variant="herb"
           label="Herb Garden"
           planted={elementsFor('herb_garden')}
-          onTapElement={setSelected}
+          editMode={isEditMode}
+          selectedId={selectedId}
+          onSelect={handleSelect}
+          onLongPress={handleLongPress}
+          onMove={handleMove}
           divider
         />
         <GardenBed
           variant="meadow"
           label="Wild Meadow"
           planted={elementsFor('wild_meadow')}
-          onTapElement={setSelected}
+          editMode={isEditMode}
+          selectedId={selectedId}
+          onSelect={handleSelect}
+          onLongPress={handleLongPress}
+          onMove={handleMove}
         />
       </div>
 
@@ -125,47 +162,118 @@ export default function GardenView() {
         style={{ zIndex: 20 }}
       >
         <span className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur">
-          Welcome, {name}
+          {isEditMode ? 'Tap a plant to arrange it' : `Welcome, ${name}`}
         </span>
-        <div className="flex items-center gap-2">
-          <Link
-            to="/oracle"
-            className="rounded-full bg-green-500/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-green-400"
-          >
-            🃏 Draw today’s cards
-          </Link>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur transition hover:bg-night-sky/70"
-          >
-            Sign out
-          </button>
-        </div>
+        {!isEditMode && (
+          <div className="flex items-center gap-2">
+            <Link
+              to="/oracle"
+              className="rounded-full bg-green-500/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-green-400"
+            >
+              🃏 Draw today’s cards
+            </Link>
+            <button
+              type="button"
+              onClick={toggleEditMode}
+              className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur transition hover:bg-night-sky/70"
+            >
+              ✎ Arrange garden
+            </button>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur transition hover:bg-night-sky/70"
+            >
+              Sign out
+            </button>
+          </div>
+        )}
       </div>
 
       <Toasts />
 
-      {/* element detail sheet */}
-      {selected && (
+      {/* read-only card sheet (outside edit mode) */}
+      {!isEditMode && readOnlyEl && (
         <div
           className="absolute inset-x-0 bottom-0 z-40 flex flex-col items-center gap-2 rounded-t-2xl bg-night-sky/90 px-6 py-5 text-center text-moon backdrop-blur"
-          style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
         >
           <p className="text-lg" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-            {selectedCard?.name ?? 'A planted seed'}
+            {readOnlyCard?.name ?? 'A planted seed'}
           </p>
-          {selectedCard?.affirmation && (
+          {readOnlyCard?.affirmation && (
             <p className="italic text-green-200" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              {selectedCard.affirmation}
+              {readOnlyCard.affirmation}
             </p>
           )}
           <button
             type="button"
-            onClick={() => setSelected(null)}
+            onClick={() => setReadOnlyEl(null)}
             className="mt-1 rounded-full border border-green-700/50 px-4 py-1.5 text-sm hover:bg-green-900/40"
           >
             Close
+          </button>
+        </div>
+      )}
+
+      {/* edit control panel for the selected plant */}
+      {isEditMode && selectedEl && selectedEl.is_movable !== false && (
+        <div
+          className="absolute z-40 flex w-[min(92vw,360px)] flex-col gap-3 rounded-2xl border border-green-700/50 bg-night-sky/95 p-4 text-moon backdrop-blur"
+          style={{ left: '50%', bottom: '72px', transform: 'translateX(-50%)' }}
+        >
+          <p className="text-center text-sm text-moon/70">Arrange this plant — drag it to move</p>
+          <label className="flex items-center justify-between gap-3 text-sm">
+            <span>Size</span>
+            <input
+              type="range"
+              min={0.5}
+              max={2}
+              step={0.05}
+              value={selectedEl.scale}
+              onChange={(e) => updateElementLocal(selectedEl.id, { scale: Number(e.target.value) })}
+              className="flex-1 accent-green-400"
+            />
+          </label>
+          <label className="flex items-center justify-between gap-3 text-sm">
+            <span>Rotate</span>
+            <input
+              type="range"
+              min={-180}
+              max={180}
+              step={1}
+              value={selectedEl.rotation}
+              onChange={(e) => updateElementLocal(selectedEl.id, { rotation: Number(e.target.value) })}
+              className="flex-1 accent-green-400"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => removeElement(selectedEl.id)}
+            className="self-center rounded-full border border-red-400/60 px-4 py-1.5 text-sm text-red-200 hover:bg-red-900/30"
+          >
+            🗑 Remove
+          </button>
+        </div>
+      )}
+
+      {/* sticky edit action bar */}
+      {isEditMode && (
+        <div
+          className="absolute inset-x-0 bottom-0 z-40 flex items-center justify-center gap-3 bg-night-sky/90 px-4 py-3 backdrop-blur"
+        >
+          <button
+            type="button"
+            onClick={() => void cancelEdit()}
+            className="rounded-full border border-green-700/50 px-5 py-2 text-moon hover:bg-green-900/40"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => void saveLayout()}
+            className="rounded-full bg-green-500 px-6 py-2 font-semibold text-night-sky hover:bg-green-400"
+          >
+            Save
           </button>
         </div>
       )}

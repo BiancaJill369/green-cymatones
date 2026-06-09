@@ -6,13 +6,27 @@ interface Props {
   variant: 'herb' | 'meadow'
   label: string
   planted: El[]
-  onTapElement: (el: El) => void
+  editMode: boolean
+  selectedId: string | null
+  onSelect: (el: El) => void
+  onLongPress: (el: El) => void
+  onMove: (id: string, x: number, y: number) => void
   divider?: boolean
 }
 
 const FLOWER_COLORS = ['#ffd76b', '#ff8aa8', '#cdb0ff', '#ff8a5b', '#fff0a8']
 
-export default function GardenBed({ variant, label, planted, onTapElement, divider }: Props) {
+export default function GardenBed({
+  variant,
+  label,
+  planted,
+  editMode,
+  selectedId,
+  onSelect,
+  onLongPress,
+  onMove,
+  divider,
+}: Props) {
   // Ambient (placeholder) greenery for atmosphere — the real plants render on top.
   const ambient = useMemo(() => {
     const count = variant === 'herb' ? 16 : 18
@@ -39,9 +53,17 @@ export default function GardenBed({ variant, label, planted, onTapElement, divid
         </div>
       ))}
 
-      {/* real, persistent planted elements */}
       {planted.map((el) => (
-        <GardenElement key={el.id} element={el} variant="low" onTap={onTapElement} />
+        <GardenElement
+          key={el.id}
+          element={el}
+          variant="low"
+          editMode={editMode}
+          selected={selectedId === el.id}
+          onSelect={onSelect}
+          onLongPress={onLongPress}
+          onMove={onMove}
+        />
       ))}
 
       {divider && <div className="divider" />}

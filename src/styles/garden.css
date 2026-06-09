@@ -314,7 +314,6 @@
 /* ---------------- real planted elements (Chunk 7a) ---------------- */
 .stage .g-el {
   position: absolute;
-  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -322,10 +321,15 @@
   border: none;
   padding: 0;
   cursor: pointer;
+  transform-origin: bottom center; /* scale/rotate from the plant's base */
+  touch-action: none; /* allow pointer drag on touch without scrolling */
   z-index: 5;
 }
-.stage .g-tree { bottom: 36%; transform-origin: bottom center; animation: gdSway 6s ease-in-out infinite; }
-.stage .g-low { bottom: 12px; transform-origin: bottom center; }
+.stage.editing .g-el { cursor: grab; }
+.stage.editing .g-el:active { cursor: grabbing; }
+.stage .g-el.g-selected {
+  filter: drop-shadow(0 0 5px #ffd76b) drop-shadow(0 0 10px rgba(92, 224, 138, 0.9));
+}
 .stage .gt-canopy {
   border-radius: 50%;
   background: radial-gradient(circle at 40% 35%, #5ce08a, #2f8f4e 60%, #1f5b3a);

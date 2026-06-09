@@ -30,7 +30,15 @@ export interface GardenElement {
   growth_stage: number
   growth_started_at: string
   growth_completed_at: string | null
+  is_movable: boolean
   metadata: Record<string, unknown>
+}
+
+export interface ElementPatch {
+  position_x?: number
+  position_y?: number
+  scale?: number
+  rotation?: number
 }
 
 const DEFAULT_BEDS: { bed_type: BedType; name: string }[] = [
@@ -42,7 +50,6 @@ const DEFAULT_BEDS: { bed_type: BedType; name: string }[] = [
 const DAY_MS = 86_400_000
 
 // Time-based growth: one stage per real day since growth_started_at (capped at 5).
-// Mutates elements in place, persists changed stages, toasts newly bloomed plants.
 async function applyGrowth(elements: GardenElement[]) {
   const updates: PromiseLike<unknown>[] = []
   const bloomed: GardenElement[] = []
@@ -84,13 +91,29 @@ interface GardenState {
   beds: GardenBed[]
   elements: GardenElement[]
   isLoaded: boolean
+  userId: string | null
+  // edit mode
+  isEditMode: boolean
+  selectedId: string | null
+  dirty: Set<string>
+
   loadGarden: (userId: string) => Promise<void>
+  toggleEditMode: () => void
+  selectElement: (id: string | null) => void
+  updateElementLocal: (id: string, patch: ElementPatch) => void
+  removeElement: (id: string) => Promise<void>
+  saveLayout: () => Promise<void>
+  cancelEdit: () => Promise<void>
 }
 
-export const useGardenStore = create<GardenState>((set) => ({
+export const useGardenStore = create<GardenState>((set, get) => ({
   beds: [],
   elements: [],
   isLoaded: false,
+  userId: null,
+  isEditMode: false,
+  selectedId: null,
+  dirty: new Set(),
 
   loadGarden: async (userId) => {
     try {
@@ -116,13 +139,72 @@ export const useGardenStore = create<GardenState>((set) => ({
         .eq('user_id', userId)
       const elements = (elemData ?? []) as GardenElement[]
 
-      // advance growth before rendering
       await applyGrowth(elements)
 
-      set({ beds: (beds ?? []) as GardenBed[], elements, isLoaded: true })
+      set({ beds: (beds ?? []) as GardenBed[], elements, isLoaded: true, userId })
     } catch (err) {
       console.error('loadGarden error', err)
-      set({ isLoaded: true })
+      set({ isLoaded: true, userId })
     }
+  },
+
+  toggleEditMode: () => set((s) => ({ isEditMode: !s.isEditMode, selectedId: null })),
+
+  selectElement: (id) => set({ selectedId: id }),
+
+  updateElementLocal: (id, patch) =>
+    set((s) => {
+      const dirty = new Set(s.dirty)
+      dirty.add(id)
+      return {
+        elements: s.elements.map((e) => (e.id === id ? { ...e, ...patch } : e)),
+        dirty,
+      }
+    }),
+
+  removeElement: async (id) => {
+    await supabase.from('green_garden_elements').delete().eq('id', id)
+    set((s) => {
+      const dirty = new Set(s.dirty)
+      dirty.delete(id)
+      return {
+        elements: s.elements.filter((e) => e.id !== id),
+        dirty,
+        selectedId: s.selectedId === id ? null : s.selectedId,
+      }
+    })
+    useToastStore.getState().push('Plant removed')
+  },
+
+  saveLayout: async () => {
+    const { elements, dirty } = get()
+    const updates = elements
+      .filter((e) => dirty.has(e.id))
+      .map((e) =>
+        supabase
+          .from('green_garden_elements')
+          .update({
+            position_x: e.position_x,
+            position_y: e.position_y,
+            scale: e.scale,
+            rotation: e.rotation,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', e.id),
+      )
+    await Promise.all(updates)
+    set({ dirty: new Set(), isEditMode: false, selectedId: null })
+  },
+
+  cancelEdit: async () => {
+    const userId = get().userId
+    if (userId) {
+      const { data } = await supabase
+        .from('green_garden_elements')
+        .select('*')
+        .eq('user_id', userId)
+      set({ elements: (data ?? []) as GardenElement[] })
+    }
+    set({ dirty: new Set(), isEditMode: false, selectedId: null })
   },
 }))
