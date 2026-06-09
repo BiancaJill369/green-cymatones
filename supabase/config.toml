@@ -1,0 +1,10 @@
+# Supabase config — green.cymatones.com edge functions (shared CymaTones project).
+# These two functions must run WITHOUT a Supabase JWT:
+#   - green-stripe-checkout: invoked from the Subscribe page by a logged-out visitor
+#   - green-stripe-webhook:  invoked by Stripe's servers (no Supabase auth at all)
+
+[functions.green-stripe-checkout]
+verify_jwt = false
+
+[functions.green-stripe-webhook]
+verify_jwt = false

@@ -1,5 +1,35 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 4: Stripe Checkout → Account Creation ($8/mo) ✅ DONE (code)
+
+**Price is now $8/mo** (was $15/mo in the bible — bible + any other $15 references still need updating later).
+
+**What shipped**
+- `supabase/functions/green-stripe-checkout/index.ts` — creates a Stripe Checkout Session (no account yet). *(your provided file, verbatim)*
+- `supabase/functions/green-stripe-webhook/index.ts` — on `checkout.session.completed`, resolves-or-creates the auth user, ensures `green_profiles`, upserts `green_subscriptions`; keeps status in sync on update/delete/payment_failed. *(your provided file, verbatim)*
+- `supabase/config.toml` — `verify_jwt = false` for both functions *(I created this file — it didn't exist; see note below)*.
+- `supabase/migrations/002_green_user_resolver.sql` — `green_get_user_id_by_email(p_email)` *(I wrote this — its name/param are dictated by the webhook's `rpc(...)` call on line 21; `SECURITY DEFINER`, execute granted to `service_role` only)*.
+- `pages/SubscribePage.tsx` — wired to call `green-stripe-checkout` (logged-out visitor types email; lapsed member's email is known) and redirect to Stripe. Copy + CTA now $8/mo.
+- Build clean. Verified locally: Subscribe page renders, $8/mo CTA, email input, and the button calls the edge function (errors gracefully when the function isn't reachable).
+
+**⚠️ DEPLOY STEPS — Bianca (functions are NOT deployed from CI):**
+1. **Run migration 002** in the CymaTones SQL editor (`002_green_user_resolver.sql`).
+2. **Stripe:** create the **$8/mo recurring Price**; copy its **price ID**.
+3. **Set Supabase function secrets** (CymaTones project) for the green functions:
+   - `STRIPE_SECRET_KEY`
+   - `GREEN_STRIPE_PRICE_ID` = the $8/mo price ID from step 2
+   - `GREEN_STRIPE_WEBHOOK_SECRET` = from step 5
+   - `APP_URL` = `https://green.cymatones.com`
+   - (`SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` are auto-provided to deployed functions — don't set by hand.)
+4. **Deploy both functions** to the CymaTones project: `supabase functions deploy green-stripe-checkout` and `green-stripe-webhook` (both must be `--no-verify-jwt`, which the `config.toml` entries also declare). **Note:** if your CymaTones `config.toml` already exists with a `project_id`, merge the two `[functions.*]` blocks from this repo's `config.toml` into it rather than overwriting.
+5. **Stripe webhook:** add an endpoint → the deployed `green-stripe-webhook` URL; subscribe to `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`; copy the **signing secret** into `GREEN_STRIPE_WEBHOOK_SECRET` (step 3).
+
+**End-to-end test once deployed:** Subscribe page → enter email → Stripe Checkout (test card `4242 4242 4242 4242`) → webhook creates the account + `green_subscriptions` row → you're redirected to `/auth?welcome=1` → log in with the 8-digit code → land in `/garden`. That's also the first time the Chunk 3 happy path becomes fully testable.
+
+**Note on chunk order:** this (Chunk 4) is committed before Chunk 3.5 (animated landing), which is still waiting on the `LandingPage.tsx` component. They're independent, so order doesn't matter.
+
+---
+
 ## 2026-06-08 — CHUNK 3: 8-Digit Code Login + Subscribe-First Gate ✅ DONE (code)
 
 **What shipped** (login-only passwordless OTP; no free tier; account = subscription)
