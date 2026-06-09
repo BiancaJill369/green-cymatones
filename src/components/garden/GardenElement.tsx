@@ -14,6 +14,8 @@ const TREE = [
 const LOW_H = [0, 18, 30, 42, 50, 58]
 // journal_book ramp: 0 seed → open book blooming on a stem
 const BOOK = [null, { size: 15, stem: 8 }, { size: 21, stem: 14 }, { size: 28, stem: 20 }, { size: 35, stem: 26 }, { size: 44, stem: 32 }]
+// mushroom ramp (forest floor): 0 tiny nub → full glowing mushroom
+const MUSHROOM = [10, 16, 22, 30, 38, 48]
 
 interface Props {
   element: El
@@ -103,6 +105,13 @@ export default function GardenElement({
 
   const renderInner = () => {
     if (variant === 'forest') {
+      if (element.element_type === 'mushroom') {
+        return (
+          <span className="g-mushroom" style={{ fontSize: `${MUSHROOM[stage]}px` }}>
+            🍄
+          </span>
+        )
+      }
       const t = TREE[stage]
       return (
         <>

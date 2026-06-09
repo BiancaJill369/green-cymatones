@@ -8,6 +8,7 @@ import GardenPage from './pages/GardenPage'
 import OraclePage from './pages/OraclePage'
 import AngelPage from './pages/AngelPage'
 import JournalPage from './pages/JournalPage'
+import TonesPage from './pages/TonesPage'
 
 export default function App() {
   return (
@@ -46,6 +47,14 @@ export default function App() {
             element={
               <AuthGuard>
                 <JournalPage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/tones"
+            element={
+              <AuthGuard>
+                <TonesPage />
               </AuthGuard>
             }
           />

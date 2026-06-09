@@ -1,0 +1,87 @@
+/* green.cymatones.com — Frequency Tones (Chunk 11). Garden palette + Cormorant/Inter. */
+
+.tones {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(180deg, #0c3a25 0%, #08291b 60%, #061d14 100%);
+  color: #f4f9f0;
+  font-family: 'Inter', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 130px;
+  gap: 16px;
+}
+.tones .wrap { width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 18px; }
+.tones h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  color: #cdeccf;
+  text-align: center;
+}
+.tones .reward {
+  border: 1px solid rgba(255, 215, 107, 0.4);
+  background: rgba(255, 215, 107, 0.08);
+  border-radius: 14px;
+  padding: 12px 16px;
+  text-align: center;
+  color: #ffd76b;
+  font-size: 0.92rem;
+}
+.tones .reward .bar { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); margin-top: 8px; overflow: hidden; }
+.tones .reward .bar > span { display: block; height: 100%; background: linear-gradient(90deg, #5ce08a, #34d27e); }
+
+.tones .cat { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: #ffd76b; margin-bottom: 6px; text-transform: capitalize; }
+.track-list { display: flex; flex-direction: column; gap: 8px; }
+.track-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(124, 191, 138, 0.25);
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  text-align: left;
+  color: inherit;
+  width: 100%;
+}
+.track-row:hover { background: rgba(124, 191, 138, 0.12); }
+.track-row.active { border-color: #5ce08a; background: rgba(92, 224, 138, 0.12); }
+.track-row .tr-main { flex: 1; min-width: 0; }
+.track-row .tr-name { font-weight: 600; }
+.track-row .tr-tag { font-size: 0.82rem; color: #9bbfa6; margin-top: 2px; }
+.track-row .tr-meta { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: #9bbfa6; flex-shrink: 0; }
+.chip { font-size: 0.7rem; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(124, 191, 138, 0.4); color: #aef0a0; }
+.chip.hz { color: #ffd76b; border-color: rgba(255, 215, 107, 0.4); }
+
+/* mini player */
+.tone-player {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  background: rgba(6, 29, 20, 0.96);
+  border-top: 1px solid rgba(124, 191, 138, 0.3);
+  padding: 12px 16px;
+  backdrop-filter: blur(6px);
+}
+.tone-player .inner { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+.tone-player .row { display: flex; align-items: center; gap: 12px; }
+.tone-player .pp {
+  width: 46px; height: 46px; border-radius: 50%; border: none; flex-shrink: 0;
+  background: linear-gradient(135deg, #5ce08a, #34d27e); color: #06281a; font-size: 1.2rem; cursor: pointer;
+}
+.tone-player .tp-name { font-weight: 600; }
+.tone-player .tp-notes { font-size: 0.82rem; color: #9bbfa6; }
+.tone-player .progress { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); overflow: hidden; flex: 1; }
+.tone-player .progress > span { display: block; height: 100%; background: linear-gradient(90deg, #5ce08a, #34d27e); }
+.tone-player .time { font-size: 0.72rem; color: #9bbfa6; min-width: 86px; text-align: right; }
+
+.tones .back-link { font-size: 0.85rem; color: #9bbfa6; text-decoration: none; }
+.tones .back-link:hover { color: #f4f9f0; }
+
+@media (prefers-reduced-motion: reduce) { .track-row { transition: none; } }

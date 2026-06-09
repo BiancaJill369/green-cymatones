@@ -1,5 +1,18 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-09 — CHUNK 11: Frequency Mushroom (tones player) ✅ DONE (code)
+
+- **DB (already live, Bianca):** `green_listening_daily` (migration 009). `frequency_tracks` read directly (public SELECT). **Green is READ-ONLY on `frequency_tracks`** — does not write `play_count`.
+- `stores/frequencyStore.ts` — Howler-based single-instance player; `loadTracks` (grouped by `category`), `loadListening`, `playTrack`/`togglePlay`/`stopPlayback`. **Accrues only real playing seconds**, flushes to `green_listening_daily` every ~10s + on pause/track-change/route-leave; crossing **180s/day** upserts `tuning_seed_earned` and plants a `mushroom` in the **Forest Floor** (once/day) + toast "🍄 A tuning mushroom sprouted in your Forest Floor".
+- `pages/TonesPage.tsx` + `TrackList` + `TonePlayer` + `styles/tones.css` — category sections; rows show name + `metadata.tagline` + duration (mm:ss) + "{hz} Hz" chip **only when hz is set** + optional chakra chip; mini-player with play/pause, progress, tagline, notes; reward line "Listen 3 minutes today…" with `todaySeconds/180`, hidden once earned.
+- `GardenElement` renders `mushroom`: stage 0 tiny nub → full glowing 🍄 (scales with stage), on the Forest Floor. `App.tsx`: `/tones` behind `AuthGuard`. HUD: "🍄 Frequency Tones" link. Added `@types/howler` (dev).
+- **Verified in browser** (temp routes + seeded tracks, removed before commit): categories + rows (Hz chip only when present, chakra chips, durations), reward progress (95/180 → 52.8% bar), tapping a track opens the mini-player (name/tagline/progress/notes, "0:00 / 7:00") and highlights the row; mushrooms render in the Forest Floor growing 10→22→48px across stages. Build clean (one benign Vite "chunk >500 kB" warning from Howler's weight).
+
+**⚠️ ACTION REQUIRED — set the Storage bucket (you):** in `stores/frequencyStore.ts`, line ~7:
+`const TRACKS_BUCKET = 'REPLACE_ME_tracks_bucket'` → set it to the **actual Supabase Storage bucket** that holds the `ct_originals/*.mp3` files. Also confirm whether that bucket is **PUBLIC** (current `getPublicUrl` resolver is correct) or **PRIVATE** (switch `resolveAudio` to the async `createSignedUrl` variant — it's right there in a comment, but `playTrack` would then need to `await` it). Until this is set, track playback won't resolve a real URL. Everything else works.
+
+---
+
 ## 2026-06-09 — CHUNK 10: Greenhouse Journal ✅ DONE (code)
 
 - **DB (already live, Bianca):** `green_daily_prompts` (seeded) + `green_journal_entries` with RLS. No migrations.

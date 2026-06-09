@@ -194,6 +194,12 @@ export default function GardenView() {
             >
               📖 Journal
             </Link>
+            <Link
+              to="/tones"
+              className="rounded-full bg-emerald/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-emerald"
+            >
+              🍄 Frequency Tones
+            </Link>
             <button
               type="button"
               onClick={toggleEditMode}

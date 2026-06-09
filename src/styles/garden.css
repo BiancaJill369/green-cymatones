@@ -374,6 +374,7 @@
 }
 .stage .g-book { line-height: 1; filter: drop-shadow(0 0 5px rgba(255, 233, 168, 0.55)); }
 .stage .g-book-stem { width: 4px; background: linear-gradient(180deg, #5ce08a, #34d27e); border-radius: 3px; }
+.stage .g-mushroom { line-height: 1; filter: drop-shadow(0 0 6px rgba(0, 255, 65, 0.5)); }
 
 @media (prefers-reduced-motion: reduce) {
   .stage * { animation: none !important; transition: none !important; }
