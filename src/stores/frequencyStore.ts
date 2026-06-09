@@ -3,18 +3,15 @@ import { Howl } from 'howler'
 import { supabase } from '../lib/supabaseClient'
 import { useToastStore } from './toastStore'
 
-// ⚠️ SET THIS — the Supabase Storage bucket that holds the ct_originals/*.mp3 files.
-// If the bucket is PUBLIC, the getPublicUrl resolver below is correct.
-// If it is PRIVATE, switch resolveAudio to the async createSignedUrl variant (see note).
-const TRACKS_BUCKET = 'REPLACE_ME_tracks_bucket'
+// audio_url is a relative path (e.g. 'ct_originals/sympathetic.mp3') served off a
+// Shopify/Cloudflare-Workers base (NOT Supabase Storage). The base is configured via
+// VITE_TRACKS_AUDIO_BASE (.env / Vercel) — same base the CymaTones app uses.
+const BASE = import.meta.env.VITE_TRACKS_AUDIO_BASE ?? ''
 
 function resolveAudio(path: string): string {
-  if (/^https?:\/\//.test(path)) return path
-  return supabase.storage.from(TRACKS_BUCKET).getPublicUrl(path).data.publicUrl
+  if (/^https?:\/\//.test(path)) return path // already absolute
+  return BASE.replace(/\/$/, '') + '/' + path.replace(/^\//, '')
 }
-// PRIVATE bucket variant (async):
-//   const { data } = await supabase.storage.from(TRACKS_BUCKET).createSignedUrl(path, 3600)
-//   return data?.signedUrl ?? ''
 
 export interface Track {
   id: string

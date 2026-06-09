@@ -8,8 +8,9 @@
 - `GardenElement` renders `mushroom`: stage 0 tiny nub → full glowing 🍄 (scales with stage), on the Forest Floor. `App.tsx`: `/tones` behind `AuthGuard`. HUD: "🍄 Frequency Tones" link. Added `@types/howler` (dev).
 - **Verified in browser** (temp routes + seeded tracks, removed before commit): categories + rows (Hz chip only when present, chakra chips, durations), reward progress (95/180 → 52.8% bar), tapping a track opens the mini-player (name/tagline/progress/notes, "0:00 / 7:00") and highlights the row; mushrooms render in the Forest Floor growing 10→22→48px across stages. Build clean (one benign Vite "chunk >500 kB" warning from Howler's weight).
 
-**⚠️ ACTION REQUIRED — set the Storage bucket (you):** in `stores/frequencyStore.ts`, line ~7:
-`const TRACKS_BUCKET = 'REPLACE_ME_tracks_bucket'` → set it to the **actual Supabase Storage bucket** that holds the `ct_originals/*.mp3` files. Also confirm whether that bucket is **PUBLIC** (current `getPublicUrl` resolver is correct) or **PRIVATE** (switch `resolveAudio` to the async `createSignedUrl` variant — it's right there in a comment, but `playTrack` would then need to `await` it). Until this is set, track playback won't resolve a real URL. Everything else works.
+**Audio source (FINAL):** audio is NOT Supabase Storage — it streams from a Shopify/Cloudflare-Workers base. The resolver now reads **`VITE_TRACKS_AUDIO_BASE`** (`audio_url` is a relative path like `ct_originals/sympathetic.mp3` off that base; absolute URLs pass through). Howl uses `html5: true` for streaming mp3.
+
+**⚠️ ACTION REQUIRED — set one env var (you):** add **`VITE_TRACKS_AUDIO_BASE`** to your local `.env` and to Vercel, set to the **same base the CymaTones app uses to serve audio** (e.g. `https://xxxx.workers.dev/`). It's in `.env.example` (empty). Until it's set, playback won't resolve a real URL; everything else works. No code change needed.
 
 ---
 
