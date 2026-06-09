@@ -1,5 +1,17 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 9: Sky of Stars ✅ DONE (code)
+
+- **DB (already live, Bianca):** `green_sky_stars` with RLS. No migrations this chunk.
+- `stores/skyStore.ts` — `loadStars(userId)`, `saveStar({...})` (deterministic upper-sky placement via a hash of `source_ref`; **upsert on `user_id,source_type,source_ref` → no duplicates**; marks the matching `green_angel_draws.saved_to_sky=true`), `removeStar(id)`. Only the `angel_number` path is wired (I AM source comes with Shadowmoss in Ch.12).
+- `components/garden/SkyStars.tsx` — tappable stars in the garden's sky band at `position_x/y`, colored by `color`, opacity = `brightness`, gentle twinkle; **faint by day, luminous at night** (`.stage.night`). `StarDetailSheet.tsx` — label + detail (affirmation) + "Remove from sky".
+- `AngelReading.tsx` — "✦ Save to Sky" button under the affirmation; shows "Saved to your sky ✓" if a star already exists for that number.
+- Wired `SkyStars` + `StarDetailSheet` into `GardenView` (loads stars alongside the garden).
+- **Verified in browser** (temp routes + seeded stars, removed before commit): two saved stars render in the night sky (gold + green) at their positions and glow at night; tapping a star opens the sheet (777 + affirmation + Remove/Close); the reading shows "✦ Save to Sky" for an unsaved number and "Saved to your sky ✓" for one already saved (dedup). Build clean; reduced-motion preserved.
+- **Live confirm (you):** reveal an angel number → "Save to Sky" creates a `green_sky_stars` row; the star shows in the garden sky (brighter at night); tap → Remove works; re-saving the same number doesn't duplicate. (Supabase writes hang in the local sandbox; store logic is spec-exact.)
+
+---
+
 ## 2026-06-08 — CHUNK 8b.1: Celestial Filigree Angel Keypad ✅ DONE (code)
 
 - Replaced `components/oracle/AngelKeypad.tsx` with the approved **celestial relic** (mock-matched): deep-green filigree relic, gold/silver double frame, SVG filigree corners, 90-star starfield, nebula breathe, frame glow, display sheen — all self-contained `.akp` styles + `akp*` keyframes in the component (no CSS file touched).

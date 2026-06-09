@@ -311,6 +311,32 @@
 .stage .lb-1 { animation-duration: 30s; }
 .stage .lb-2 { animation-duration: 42s; animation-delay: -10s; bottom: 16%; }
 
+/* ---------------- saved sky stars (Chunk 9) ---------------- */
+.stage .sky-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 54%; /* the sky band */
+  z-index: 2; /* above sky gradient, below forest/creatures */
+  opacity: 0.4; /* faint by day */
+  transition: opacity 0.8s ease;
+}
+.stage.night .sky-stars { opacity: 1; } /* luminous at night */
+.stage .sky-star {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px 2px currentColor, 0 0 12px 4px currentColor;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  animation: gdTwinkle 3.5s ease-in-out infinite;
+}
+
 /* ---------------- real planted elements (Chunk 7a) ---------------- */
 .stage .g-el {
   position: absolute;

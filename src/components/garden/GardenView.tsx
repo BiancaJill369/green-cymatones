@@ -6,7 +6,11 @@ import { useAuth } from '../../hooks/useAuth'
 import { useGardenStore } from '../../stores/gardenStore'
 import type { BedType, GardenElement as El } from '../../stores/gardenStore'
 import { useOracleStore } from '../../stores/oracleStore'
+import { useSkyStore } from '../../stores/skyStore'
+import type { SkyStar } from '../../stores/skyStore'
 import SkyBackground from './SkyBackground'
+import SkyStars from './SkyStars'
+import StarDetailSheet from './StarDetailSheet'
 import GardenBed from './GardenBed'
 import GardenElement from './GardenElement'
 import Creatures from './Creatures'
@@ -30,12 +34,17 @@ export default function GardenView() {
   const oracleCards = useOracleStore((s) => s.cards)
   const oracleLoaded = useOracleStore((s) => s.isLoaded)
   const loadDecks = useOracleStore((s) => s.loadDecks)
+  const loadStars = useSkyStore((s) => s.loadStars)
 
   const [readOnlyEl, setReadOnlyEl] = useState<El | null>(null)
+  const [selectedStar, setSelectedStar] = useState<SkyStar | null>(null)
 
   useEffect(() => {
-    if (user?.id) void loadGarden(user.id)
-  }, [user?.id, loadGarden])
+    if (user?.id) {
+      void loadGarden(user.id)
+      void loadStars(user.id)
+    }
+  }, [user?.id, loadGarden, loadStars])
 
   useEffect(() => {
     if (!oracleLoaded) void loadDecks()
@@ -91,6 +100,7 @@ export default function GardenView() {
   return (
     <div className={`stage${timeOfDay === 'night' ? ' night' : ''}${isEditMode ? ' editing' : ''}`}>
       <SkyBackground timeOfDay={timeOfDay} />
+      <SkyStars onSelect={setSelectedStar} />
       <div className="horizon" aria-hidden="true" />
 
       {/* FOREST FLOOR */}
@@ -197,6 +207,9 @@ export default function GardenView() {
       </div>
 
       <Toasts />
+
+      {/* saved-star detail sheet */}
+      {selectedStar && <StarDetailSheet star={selectedStar} onClose={() => setSelectedStar(null)} />}
 
       {/* read-only card sheet (outside edit mode) */}
       {!isEditMode && readOnlyEl && (
