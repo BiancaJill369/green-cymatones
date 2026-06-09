@@ -1,5 +1,13 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 8a: Angel Oracle Store ✅ DONE (code)
+
+- **DB (already live, Bianca):** `green_angel_readings` (999 rows) + `green_angel_draws` with RLS. No migrations run this chunk.
+- **Code:** `stores/angelStore.ts` — `enteredNumber`, `currentReading`, `drawHistory` + `getReading(n)` (reads `green_angel_readings` by number, sets `currentReading`) and `recordDraw(userId, n)` (inserts a `green_angel_draws` row, prepends to `drawHistory`). Build clean. **No UI yet (that's 8b).**
+- Bundle size unchanged — nothing imports the store until 8b (expected).
+
+---
+
 ## 2026-06-08 — CHUNK 7b: Garden Edit Mode ✅ DONE (code)
 
 - **`gardenStore`** added: `isEditMode`, `selectedId`, `dirty` set, `userId`, + `toggleEditMode`, `selectElement`, `updateElementLocal` (local + marks dirty), `removeElement` (DB delete + toast), `saveLayout` (persist dirty `position_x/y/scale/rotation` + exit), `cancelEdit` (re-fetch from DB + exit).
