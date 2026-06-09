@@ -1,5 +1,23 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 5.1: Tiered Garden Layout ✅ DONE (code)
+
+Restructured `GardenView` into three depth bands (no DB change):
+- **Sky** (top ~48%): day/night gradient + sun/moon arc + night stars, ending at a horizon line (warm haze by day, cool blue by night).
+- **Forest Floor** (full-width mid band ~26%): the `forest_floor` bed now spans left→right; trees anchor to the band baseline and grow upward — tall canopies overflow up across the horizon into the sky for depth. Renders trees + mushrooms (placeholder until the oracle chunk).
+- **Foreground** (bottom ~26%): Herb Garden (left) + Wild Meadow (right), 50/50, low growth only.
+- Z-order sky(1) < forest(2) < foreground(3) < creatures(4). Day = butterflies across sky/forest + ladybugs over the beds; night = fireflies across forest + lower sky.
+- **Verified** (temp preview route, removed before commit): bands measured at the right proportions, forest full-width, tallest trees cross above the horizon, beds 50/50 and **stay side by side on mobile (375px)**. Reduced-motion + local-time day/night preserved. Build clean.
+
+## 2026-06-08 — CHUNK 3.5: Animated Garden Landing ($8/mo) ✅ DONE
+
+- Replaced `LandingPage.tsx` with the provided animated-garden component (your file, verbatim): hero, 8 feature cards, how-it-grows steps, ethos, final CTA; butterflies/ladybugs/sprout meadow; `.lp`-scoped styles; `prefers-reduced-motion` respected.
+- `index.html` already had the Cormorant Garamond + Inter font links (added earlier) — they ship with this commit.
+- **Verified in browser:** `/` renders the garden landing, **$8 everywhere (zero $15)**, CTAs route to `/subscribe` + `/auth`, fonts loaded, responsive (4→2→1 col grid). Build clean.
+- Minor behavior note: the new landing is purely presentational — it no longer auto-redirects an already-logged-in active member to `/garden` (the old placeholder did). Logged-in members just click "I'm a member" → `/auth`, which gate-routes them in. Say the word if you want the auto-redirect added back.
+
+---
+
 ## 2026-06-08 — CHUNK 5: Garden Canvas + Schema (Migration 003) ✅ DONE (code)
 
 **What shipped** (living garden canvas — no seeds/edit-mode/spirit yet)

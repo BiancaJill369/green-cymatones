@@ -10,12 +10,6 @@ import SunMoon from './SunMoon'
 import GardenBed from './GardenBed'
 import Creatures from './Creatures'
 
-const BED_DEFS: { type: BedType; label: string }[] = [
-  { type: 'herb_garden', label: 'Herb Garden' },
-  { type: 'wild_meadow', label: 'Wild Meadow' },
-  { type: 'forest_floor', label: 'Forest Floor' },
-]
-
 export default function GardenView() {
   const timeOfDay = useTimeOfDay()
   const navigate = useNavigate()
@@ -35,10 +29,34 @@ export default function GardenView() {
     navigate('/', { replace: true })
   }
 
+  const elementsFor = (type: BedType) => {
+    const bed = beds.find((b) => b.bed_type === type)
+    return bed ? elements.filter((e) => e.bed_id === bed.id) : []
+  }
+
   return (
     <div className="garden">
-      <SkyBackground timeOfDay={timeOfDay} />
-      <SunMoon timeOfDay={timeOfDay} />
+      {/* SKY (top band) */}
+      <div className="garden-sky-band">
+        <SkyBackground timeOfDay={timeOfDay} />
+        <SunMoon timeOfDay={timeOfDay} />
+      </div>
+
+      {/* HORIZON line */}
+      <div className={`garden-horizon garden-horizon--${timeOfDay}`} aria-hidden="true" />
+
+      {/* FOREST FLOOR (full-width mid band) */}
+      <div className="garden-forest-band">
+        <GardenBed variant="forest" label="Forest Floor" elements={elementsFor('forest_floor')} />
+      </div>
+
+      {/* FOREGROUND (two low beds, 50/50) */}
+      <div className="garden-foreground">
+        <GardenBed variant="low" label="Herb Garden" elements={elementsFor('herb_garden')} />
+        <GardenBed variant="low" label="Wild Meadow" elements={elementsFor('wild_meadow')} />
+      </div>
+
+      <Creatures timeOfDay={timeOfDay} />
 
       {/* HUD */}
       <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-4 py-3 text-sm">
@@ -52,16 +70,6 @@ export default function GardenView() {
         >
           Sign out
         </button>
-      </div>
-
-      <Creatures timeOfDay={timeOfDay} />
-
-      <div className="garden-beds">
-        {BED_DEFS.map((def) => {
-          const bed = beds.find((b) => b.bed_type === def.type)
-          const bedElements = bed ? elements.filter((e) => e.bed_id === bed.id) : []
-          return <GardenBed key={def.type} label={def.label} elements={bedElements} />
-        })}
       </div>
     </div>
   )
