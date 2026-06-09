@@ -1,5 +1,21 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 5: Garden Canvas + Schema (Migration 003) ✅ DONE (code)
+
+**What shipped** (living garden canvas — no seeds/edit-mode/spirit yet)
+- `stores/gardenStore.ts` — `loadGarden(userId)`: fetches beds, provisions the 3 (`herb_garden`/`wild_meadow`/`forest_floor`) on first load if none, refetches, loads elements.
+- `hooks/useTimeOfDay.ts` — `'day'|'night'` from local time, recomputed every 60s (day = 06:00–18:00).
+- `components/garden/`: `GardenView`, `SkyBackground` (day blue / night indigo + fading stars), `SunMoon` (sun arcs by day, moon by night, creeps each minute), `GardenBed` (×3 labeled plots + greenery), `Creatures` (day: 5 butterflies + 2 ladybugs; night: 26 fireflies).
+- `styles/garden.css` — all keyframes; **`prefers-reduced-motion` disables all motion**.
+- `pages/GardenPage.tsx` → renders `<GardenView/>` (still behind `AuthGuard`).
+- Build clean. **Verified in browser** (via a temporary unguarded preview route, since the garden is gated behind auth I can't satisfy locally — route was removed before commit): at 20:00 local it correctly showed night sky, moon arcing, 3 labeled beds, 26 fireflies, 60 stars; responsive on mobile (375px). Day branch is the symmetric arm of the same time check.
+
+**Migration 003:** you said you already ran it — so nothing to run. ⚠️ The `003_green_garden.sql` I committed is a **reconstruction from the bible's schema** (I never received the "above" SQL). The store only depends on the table/column names the chunk itself specified (`green_garden_beds`: user_id/bed_type/name; `green_garden_elements`: bed_id/position/etc.), so it works regardless — **but if the migration you actually ran differs from my file, replace my `003_green_garden.sql` with your real one** so the repo stays the source of truth.
+
+**Verify (you):** log in as a real subscriber → `/garden` should show the living garden for your local time, and `green_garden_beds` should have 3 rows for your user.
+
+---
+
 ## 2026-06-08 — CHUNK 4: Stripe Checkout → Account Creation ($8/mo) ✅ DONE (code)
 
 **Price is now $8/mo** (was $15/mo in the bible — bible + any other $15 references still need updating later).
