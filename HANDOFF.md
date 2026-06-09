@@ -1,5 +1,16 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-09 — CHUNK 10: Greenhouse Journal ✅ DONE (code)
+
+- **DB (already live, Bianca):** `green_daily_prompts` (seeded) + `green_journal_entries` with RLS. No migrations.
+- `stores/journalStore.ts` — `loadPrompts` (active prompts by `sort_order`; `todaysPrompt = prompts[dayOfYear() % len]`, stable all day), `loadEntries`, `saveEntry({userId, promptId, mood, content})` → inserts the entry and, if it's the **first entry of the day**, plants a `journal_book` seed in the **Wild Meadow**; returns `{ isFirst }`.
+- `pages/JournalPage.tsx` + `styles/journal.css` — gold-serif prompt, `MoodPicker` (calm·joyful·grateful·tender·restless·heavy·hopeful·inspired, single-select), autosizing textarea, Save (toast "🌱📖 A journal seed was planted in your Wild Meadow" on first-of-day), and a recent-entries list (date + mood chip + first ~120 chars, newest first).
+- `GardenElement` renders `journal_book`: stage 0 seed → a 📖 book on a stem growing in scale with stage. `App.tsx`: `/journal` behind `AuthGuard`. `GardenView` HUD: "📖 Journal" link.
+- **Verified in browser** (temp routes + seeded data, removed before commit): prompt + 8 mood chips (select toggles) + textarea + Save (disabled until text); past entries list with mood chips + truncation; the journal book renders in the Wild Meadow growing 21px→44px across stages. Build clean; reduced-motion preserved.
+- **Live confirm (you):** writing + Save inserts a `green_journal_entries` row; the day's first entry drops a `journal_book` seed in the Wild Meadow (visible in the garden); history lists past entries. (Supabase writes hang in the local sandbox; store logic is spec-exact.)
+
+---
+
 ## 2026-06-08 — CHUNK 9: Sky of Stars ✅ DONE (code)
 
 - **DB (already live, Bianca):** `green_sky_stars` with RLS. No migrations this chunk.

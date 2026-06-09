@@ -12,6 +12,8 @@ const TREE = [
   { h: 204, cw: 98, ch: 104, trunk: 72 },
 ]
 const LOW_H = [0, 18, 30, 42, 50, 58]
+// journal_book ramp: 0 seed → open book blooming on a stem
+const BOOK = [null, { size: 15, stem: 8 }, { size: 21, stem: 14 }, { size: 28, stem: 20 }, { size: 35, stem: 26 }, { size: 44, stem: 32 }]
 
 interface Props {
   element: El
@@ -99,20 +101,29 @@ export default function GardenElement({
 
   const className = `g-el g-${variant === 'forest' ? 'tree' : 'low'}${selected ? ' g-selected' : ''}`
 
-  const inner =
-    variant === 'forest' ? (
-      (() => {
-        const t = TREE[stage]
-        return (
-          <>
-            <span className="gt-canopy" style={{ width: `${t.cw}px`, height: `${t.ch}px` }} />
-            {t.trunk > 0 && <span className="gt-trunk" style={{ height: `${t.trunk}px` }} />}
-          </>
-        )
-      })()
-    ) : stage === 0 ? (
-      <span className="g-seed" />
-    ) : (
+  const renderInner = () => {
+    if (variant === 'forest') {
+      const t = TREE[stage]
+      return (
+        <>
+          <span className="gt-canopy" style={{ width: `${t.cw}px`, height: `${t.ch}px` }} />
+          {t.trunk > 0 && <span className="gt-trunk" style={{ height: `${t.trunk}px` }} />}
+        </>
+      )
+    }
+    if (stage === 0) return <span className="g-seed" />
+    if (element.element_type === 'journal_book') {
+      const b = BOOK[stage]!
+      return (
+        <>
+          <span className="g-book" style={{ fontSize: `${b.size}px` }}>
+            📖
+          </span>
+          <span className="g-book-stem" style={{ height: `${b.stem}px` }} />
+        </>
+      )
+    }
+    return (
       <span className="sprout" style={{ height: `${LOW_H[stage]}px` }}>
         {stage >= 5 && (
           <span className="flower" style={{ background: 'radial-gradient(circle,#fff,#ffd76b)' }} />
@@ -122,6 +133,7 @@ export default function GardenElement({
         )}
       </span>
     )
+  }
 
   return (
     <button
@@ -135,7 +147,7 @@ export default function GardenElement({
       onClick={handleClick}
       aria-label="planted element"
     >
-      {inner}
+      {renderInner()}
     </button>
   )
 }

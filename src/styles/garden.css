@@ -372,6 +372,8 @@
   border-radius: 50% 50% 45% 45%;
   background: radial-gradient(circle at 50% 30%, #7a5230, #4a3120);
 }
+.stage .g-book { line-height: 1; filter: drop-shadow(0 0 5px rgba(255, 233, 168, 0.55)); }
+.stage .g-book-stem { width: 4px; background: linear-gradient(180deg, #5ce08a, #34d27e); border-radius: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
   .stage * { animation: none !important; transition: none !important; }

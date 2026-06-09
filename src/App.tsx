@@ -7,6 +7,7 @@ import SubscribePage from './pages/SubscribePage'
 import GardenPage from './pages/GardenPage'
 import OraclePage from './pages/OraclePage'
 import AngelPage from './pages/AngelPage'
+import JournalPage from './pages/JournalPage'
 
 export default function App() {
   return (
@@ -37,6 +38,14 @@ export default function App() {
             element={
               <AuthGuard>
                 <AngelPage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/journal"
+            element={
+              <AuthGuard>
+                <JournalPage />
               </AuthGuard>
             }
           />

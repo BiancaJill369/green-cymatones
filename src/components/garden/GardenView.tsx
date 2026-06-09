@@ -188,6 +188,12 @@ export default function GardenView() {
             >
               🔢 Angel Numbers
             </Link>
+            <Link
+              to="/journal"
+              className="rounded-full bg-sage/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-sage"
+            >
+              📖 Journal
+            </Link>
             <button
               type="button"
               onClick={toggleEditMode}
