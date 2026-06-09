@@ -1,5 +1,18 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-09 — CHUNK 12: Shadowmoss + I AM Statements ✅ DONE (code)
+
+- **DB (already live, Bianca):** `green_iam_statements` (56) + `green_shadowmoss_encounters` with RLS (migration 010).
+- `stores/shadowmossStore.ts` — `loadStatements`, `pickStatement` (avoids the last 3), `recordEncounter` (inserts `green_shadowmoss_encounters`, keeps `currentEncounterId`), `toggleFavorite` (updates `is_favorite`; favorite → `skyStore.saveStar({sourceType:'iam_statement', sourceRef:statement_number, label:first 3 words, detail:text, color:'#cfe87a'})`; unfavorite → `removeBySource`).
+- `stores/skyStore.ts` — added `removeBySource(userId, sourceType, sourceRef)`. **This completes the I-AM path of Sky of Stars (Ch.9).**
+- `components/garden/Shadowmoss.tsx` (wired into `GardenView`) — a black cat that **wanders** the garden (CSS `left` transition + bob, flips facing by direction), **pauses to speak** an I AM in a bubble with a heart, and tapping the heart favorites it (💛 + "✨ saved to your sky"). Tapping the cat also makes him speak. `prefers-reduced-motion` → no wandering. Gentle/occasional cadence.
+- **Verified in browser** (temp route + seeded statements + user, removed before commit): cat renders with tail-sway/blink, tap → bubble with the I AM text + 🤍 heart; heart click → 💛 + "saved to your sky" + store `isFavorite:true` (fires `saveStar` with `source_type:'iam_statement'`). Build clean.
+- **Live confirm (you):** the cat speaks → a `green_shadowmoss_encounters` row is logged; heart → a `green_sky_stars` row (`source_type 'iam_statement'`) appears in the sky; unfavorite removes it. (Supabase writes hang locally; store logic is spec-exact.)
+
+**⚠️ Placeholder cat art:** `shadowmoss_cat_mock.html` didn't come through in chat, so I drew a stand-in fat black cat with gold-green eyes (tail-sway + blink). **Paste the mock and I'll swap in the exact approved sprite** — it's isolated to the `<svg>` + `sm*` keyframes in `Shadowmoss.tsx`; all behavior stays.
+
+---
+
 ## 2026-06-09 — CHUNK 11: Frequency Mushroom (tones player) ✅ DONE (code)
 
 - **DB (already live, Bianca):** `green_listening_daily` (migration 009). `frequency_tracks` read directly (public SELECT). **Green is READ-ONLY on `frequency_tracks`** — does not write `play_count`.

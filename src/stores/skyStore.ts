@@ -32,6 +32,7 @@ interface SkyState {
   loadStars: (userId: string) => Promise<void>
   saveStar: (args: SaveStarArgs) => Promise<void>
   removeStar: (id: string) => Promise<void>
+  removeBySource: (userId: string, sourceType: StarSource, sourceRef: string) => Promise<void>
 }
 
 export const useSkyStore = create<SkyState>((set, get) => ({
@@ -90,5 +91,19 @@ export const useSkyStore = create<SkyState>((set, get) => ({
   removeStar: async (id) => {
     await supabase.from('green_sky_stars').delete().eq('id', id)
     set((s) => ({ stars: s.stars.filter((st) => st.id !== id) }))
+  },
+
+  removeBySource: async (userId, sourceType, sourceRef) => {
+    await supabase
+      .from('green_sky_stars')
+      .delete()
+      .eq('user_id', userId)
+      .eq('source_type', sourceType)
+      .eq('source_ref', sourceRef)
+    set((s) => ({
+      stars: s.stars.filter(
+        (st) => !(st.source_type === sourceType && st.source_ref === sourceRef),
+      ),
+    }))
   },
 }))

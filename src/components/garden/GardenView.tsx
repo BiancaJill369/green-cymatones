@@ -14,6 +14,7 @@ import StarDetailSheet from './StarDetailSheet'
 import GardenBed from './GardenBed'
 import GardenElement from './GardenElement'
 import Creatures from './Creatures'
+import Shadowmoss from './Shadowmoss'
 import Toasts from '../common/Toasts'
 
 export default function GardenView() {
@@ -165,6 +166,8 @@ export default function GardenView() {
       </div>
 
       <Creatures timeOfDay={timeOfDay} />
+
+      <Shadowmoss />
 
       {/* HUD */}
       <div
