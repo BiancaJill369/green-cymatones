@@ -9,7 +9,7 @@
 - **Verified in browser** (temp route + seeded statements + user, removed before commit): cat renders with tail-sway/blink, tap → bubble with the I AM text + 🤍 heart; heart click → 💛 + "saved to your sky" + store `isFavorite:true` (fires `saveStar` with `source_type:'iam_statement'`). Build clean.
 - **Live confirm (you):** the cat speaks → a `green_shadowmoss_encounters` row is logged; heart → a `green_sky_stars` row (`source_type 'iam_statement'`) appears in the sky; unfavorite removes it. (Supabase writes hang locally; store logic is spec-exact.)
 
-**⚠️ Placeholder cat art:** `shadowmoss_cat_mock.html` didn't come through in chat, so I drew a stand-in fat black cat with gold-green eyes (tail-sway + blink). **Paste the mock and I'll swap in the exact approved sprite** — it's isolated to the `<svg>` + `sm*` keyframes in `Shadowmoss.tsx`; all behavior stays.
+**Cat art (FINAL):** swapped the placeholder for the **approved `shadowmoss_cat_mock.html` sprite** — fat fluffy black cat, gold-green eyes, ears/whiskers/curled tail, with bob/breathe + tail-sway + blink animations. One fix vs. the mock: facing-flip lives on `.sm-flip` and bob/breathe on `.sm-cat` (the mock had both on one element, so the flip got clobbered). Verified in browser. All wander/speak/heart behavior unchanged.
 
 ---
 

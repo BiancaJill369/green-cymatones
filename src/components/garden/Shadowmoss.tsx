@@ -2,28 +2,37 @@ import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useShadowmossStore } from '../../stores/shadowmossStore'
 
-/* NOTE: placeholder cat sprite. Swap the <svg> + sm* keyframes with the approved
-   shadowmoss_cat_mock.html art when available — behavior below stays unchanged. */
+/* Shadowmoss sprite + animations lifted from shadowmoss_cat_mock.html.
+   Facing-flip lives on .sm-flip and bob/breathe on .sm-cat so both apply
+   (the mock had them on one element, which clobbered the flip). */
 const STYLES = `
-.shadowmoss{position:absolute;bottom:27%;z-index:7;width:92px;cursor:pointer;transition:left 7s ease-in-out}
+.shadowmoss{position:absolute;bottom:23%;z-index:7;cursor:pointer;transition:left 6s ease-in-out}
 .shadowmoss.reduced{transition:none}
 .sm-flip{transform-origin:center bottom}
-.sm-cat{display:block;width:92px;height:auto;animation:smBob 3.2s ease-in-out infinite}
-@keyframes smBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-.sm-tail{transform-origin:14px 6px;animation:smTail 2.6s ease-in-out infinite}
-@keyframes smTail{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(11deg)}}
-.sm-eyes{transform-origin:center;animation:smBlink 5.5s infinite}
-@keyframes smBlink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
-.sm-bubble{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:10px;width:max(180px,46vw);max-width:240px;
-  background:rgba(11,16,38,.94);border:1px solid rgba(207,232,122,.5);border-radius:14px;padding:10px 12px;color:#f4f9f0;
-  font-family:'Cormorant Garamond',serif;text-align:center;backdrop-filter:blur(4px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
-.sm-bubble::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:7px solid transparent;border-top-color:rgba(11,16,38,.94)}
-.sm-text{display:block;font-size:1.15rem;line-height:1.3;font-style:italic;color:#eaf3d6}
-.sm-heart{margin-top:6px;background:none;border:none;font-size:1.2rem;cursor:pointer;line-height:1}
-.sm-saved{display:block;margin-top:4px;font-family:'Inter',system-ui,sans-serif;font-size:.7rem;color:#cfe87a}
+.sm-cat{display:block;width:clamp(96px,28vw,138px);height:auto;overflow:visible;
+  filter:drop-shadow(0 8px 10px rgba(0,0,0,.4));animation:smBob 6s ease-in-out infinite}
+.shadowmoss.paused .sm-cat{animation:smBreathe 3.5s ease-in-out infinite}
+@keyframes smBob{0%,100%{transform:translateY(0)}25%{transform:translateY(-5px)}75%{transform:translateY(-5px)}}
+@keyframes smBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+.shadowmoss .tail{transform-box:fill-box;transform-origin:78% 60%;animation:smTail 3.5s ease-in-out infinite}
+@keyframes smTail{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(10deg)}}
+.shadowmoss .eyelid{transform-box:fill-box;transform-origin:center;animation:smBlink 5.5s ease-in-out infinite}
+@keyframes smBlink{0%,94%,100%{transform:scaleY(0)}96%,98%{transform:scaleY(1)}}
+.sm-bubble{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:12px;z-index:8;
+  width:max(190px,46vw);max-width:240px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.96);
+  box-shadow:0 10px 30px rgba(0,0,0,.3);text-align:left}
+.sm-bubble::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:9px solid transparent;border-top-color:rgba(255,255,255,.96);border-bottom:0}
+.sm-iam{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.15rem;color:#0c3a25;line-height:1.4}
+.sm-row{display:flex;align-items:center;gap:8px;margin-top:10px}
+.sm-heart{font-size:1.3rem;cursor:pointer;background:none;border:none;padding:0;line-height:1;color:#e0392b;
+  filter:grayscale(1) opacity(.5);transition:filter .2s ease,transform .2s ease}
+.sm-heart.fav{filter:none;animation:smPop .4s ease}
+@keyframes smPop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+.sm-save-note{font-size:.72rem;color:#caa23f;font-weight:600}
 @media (prefers-reduced-motion:reduce){
   .shadowmoss{transition:none}
-  .sm-cat,.sm-tail,.sm-eyes{animation:none}
+  .sm-cat,.shadowmoss .tail,.shadowmoss .eyelid{animation:none}
 }
 `
 
@@ -40,10 +49,11 @@ export default function Shadowmoss() {
   const toggleFavorite = useShadowmossStore((s) => s.toggleFavorite)
   const current = useShadowmossStore((s) => s.currentStatement)
 
-  const [x, setX] = useState(18)
+  const [x, setX] = useState(12)
   const [facing, setFacing] = useState(1)
   const [bubble, setBubble] = useState(false)
-  const xRef = useRef(18)
+  const [sitting, setSitting] = useState(false)
+  const xRef = useRef(12)
   const reduced = useRef(prefersReducedMotion())
 
   useEffect(() => {
@@ -53,34 +63,34 @@ export default function Shadowmoss() {
   const speak = () => {
     const s = pickStatement()
     if (s && user?.id) void recordEncounter(user.id, s.id)
+    setSitting(true)
     setBubble(true)
   }
 
-  // gentle wander → pause → speak → resume loop (occasional, not constant)
+  // gentle wander → pause → speak → resume loop
   useEffect(() => {
     let cancelled = false
     const timers: ReturnType<typeof setTimeout>[] = []
-    const after = (ms: number, fn: () => void) => {
-      timers.push(setTimeout(fn, ms))
-    }
+    const after = (ms: number, fn: () => void) => timers.push(setTimeout(fn, ms))
 
     const sit = () => {
       if (cancelled) return
       speak()
-      after(6500, () => {
+      after(4800, () => {
         if (cancelled) return
         setBubble(false)
-        after(1500, move)
+        after(1200, move)
       })
     }
     const move = () => {
       if (cancelled) return
+      setSitting(false)
       setBubble(false)
-      const target = 8 + Math.random() * 78
+      const target = 8 + Math.random() * 70
       setFacing(target >= xRef.current ? 1 : -1)
       xRef.current = target
       setX(target)
-      after(7200, sit) // matches the CSS left transition
+      after(6200, sit) // matches the 6s left transition
     }
 
     if (reduced.current) {
@@ -88,7 +98,7 @@ export default function Shadowmoss() {
         if (!cancelled) speak()
       })
     } else {
-      after(3500, move)
+      after(800, move)
     }
 
     return () => {
@@ -100,7 +110,7 @@ export default function Shadowmoss() {
 
   return (
     <div
-      className={`shadowmoss${reduced.current ? ' reduced' : ''}`}
+      className={`shadowmoss${reduced.current ? ' reduced' : ''}${sitting ? ' paused' : ''}`}
       style={{ left: `${x}%` }}
       onClick={() => speak()}
       role="button"
@@ -110,52 +120,69 @@ export default function Shadowmoss() {
 
       {bubble && current && (
         <div className="sm-bubble" onClick={(e) => e.stopPropagation()}>
-          <span className="sm-text">{current.text}</span>
-          <button
-            type="button"
-            className="sm-heart"
-            onClick={() => user?.id && void toggleFavorite(user.id)}
-            aria-label={current.isFavorite ? 'Remove from sky' : 'Save to sky'}
-          >
-            {current.isFavorite ? '💛' : '🤍'}
-          </button>
-          {current.isFavorite && <span className="sm-saved">✨ saved to your sky</span>}
+          <div className="sm-iam">{current.text}</div>
+          <div className="sm-row">
+            <button
+              type="button"
+              className={`sm-heart${current.isFavorite ? ' fav' : ''}`}
+              onClick={() => user?.id && void toggleFavorite(user.id)}
+              aria-label={current.isFavorite ? 'Remove from sky' : 'Save to sky'}
+            >
+              ♥
+            </button>
+            {current.isFavorite && <span className="sm-save-note">✨ saved to your sky</span>}
+          </div>
         </div>
       )}
 
       <div className="sm-flip" style={{ transform: `scaleX(${facing})` }}>
-        <svg className="sm-cat" viewBox="0 0 110 98" fill="none" aria-hidden="true">
-          {/* tail */}
-          <path
-            className="sm-tail"
-            d="M86 72 q24 -4 20 -30 q-3 -14 -14 -11 q9 4 7 15 q-3 16 -18 17 z"
-            fill="#141414"
-          />
-          {/* fluffy body */}
-          <path
-            d="M24 94 q-12 -1 -10 -28 q2 -22 19 -31 q-4 -11 3 -18 q6 7 12 5 q9 -5 16 0 q7 2 13 -5 q7 7 3 18 q17 9 19 31 q2 27 -10 28 z"
-            fill="#1b1b1b"
-          />
-          {/* chest fluff highlight */}
-          <path
-            d="M46 92 q-7 -16 9 -30 q16 14 9 30 z"
-            fill="#262626"
-          />
-          {/* ears */}
-          <path d="M33 32 l-7 -20 q12 2 16 14 z" fill="#1b1b1b" />
-          <path d="M77 32 l7 -20 q-12 2 -16 14 z" fill="#1b1b1b" />
-          {/* eyes (blink) */}
-          <g className="sm-eyes">
-            <ellipse cx="44" cy="46" rx="6.5" ry="8.5" fill="#cfe87a" />
-            <ellipse cx="66" cy="46" rx="6.5" ry="8.5" fill="#cfe87a" />
-            <ellipse cx="44" cy="47" rx="2.2" ry="6.5" fill="#0c0c0c" />
-            <ellipse cx="66" cy="47" rx="2.2" ry="6.5" fill="#0c0c0c" />
+        <svg className="sm-cat" viewBox="0 0 150 150" aria-hidden="true">
+          {/* tail curling around the side */}
+          <g className="tail">
+            <path d="M115 118 C150 116 152 78 132 64 C146 82 132 100 112 102 Z" fill="#141419" />
+            <ellipse cx="135" cy="70" rx="9" ry="11" fill="#141419" />
           </g>
-          {/* nose */}
-          <path d="M52 56 h6 l-3 4 z" fill="#caa46a" />
+          {/* round fat sitting body */}
+          <ellipse cx="75" cy="106" rx="42" ry="38" fill="#17171e" />
+          <ellipse cx="60" cy="138" rx="12" ry="8" fill="#15151b" />
+          <ellipse cx="90" cy="138" rx="12" ry="8" fill="#15151b" />
+          <ellipse cx="62" cy="92" rx="14" ry="20" fill="#26262f" opacity=".45" />
+          {/* round head */}
+          <ellipse cx="75" cy="60" rx="33" ry="29" fill="#191921" />
+          {/* ears */}
+          <path d="M50 42 L43 18 L70 36 Z" fill="#191921" />
+          <path d="M100 42 L107 18 L80 36 Z" fill="#191921" />
+          <path d="M52 38 L48 25 L62 36 Z" fill="#3a2730" opacity=".8" />
+          <path d="M98 38 L102 25 L88 36 Z" fill="#3a2730" opacity=".8" />
+          {/* eyes */}
+          <g>
+            <ellipse cx="62" cy="58" rx="9" ry="11" fill="#cfe87a" />
+            <ellipse cx="88" cy="58" rx="9" ry="11" fill="#cfe87a" />
+            <ellipse cx="62" cy="59" rx="3.2" ry="9" fill="#0c0c12" />
+            <ellipse cx="88" cy="59" rx="3.2" ry="9" fill="#0c0c12" />
+            <circle cx="59.5" cy="53" r="2" fill="#fff" opacity=".9" />
+            <circle cx="85.5" cy="53" r="2" fill="#fff" opacity=".9" />
+            <rect className="eyelid" x="52" y="47" width="20" height="23" rx="10" fill="#191921" />
+            <rect className="eyelid" x="78" y="47" width="20" height="23" rx="10" fill="#191921" />
+          </g>
+          {/* nose + mouth */}
+          <path d="M71 68 L79 68 L75 73 Z" fill="#e88aa8" />
+          <path
+            d="M75 73 Q70 78 65 75 M75 73 Q80 78 85 75"
+            stroke="#0c0c12"
+            strokeWidth="1.4"
+            fill="none"
+            strokeLinecap="round"
+          />
           {/* whiskers */}
-          <path d="M40 58 q-12 -1 -18 2 M40 61 q-12 2 -17 7" stroke="#3a3a3a" strokeWidth="1" strokeLinecap="round" />
-          <path d="M70 58 q12 -1 18 2 M70 61 q12 2 17 7" stroke="#3a3a3a" strokeWidth="1" strokeLinecap="round" />
+          <g stroke="#b9c2c8" strokeWidth="1" opacity=".65" strokeLinecap="round" fill="none">
+            <path d="M52 66 L24 62" />
+            <path d="M52 70 L24 72" />
+            <path d="M52 74 L26 80" />
+            <path d="M98 66 L126 62" />
+            <path d="M98 70 L126 72" />
+            <path d="M98 74 L124 80" />
+          </g>
         </svg>
       </div>
     </div>
