@@ -6,6 +6,7 @@ import AuthPage from './pages/AuthPage'
 import SubscribePage from './pages/SubscribePage'
 import GardenPage from './pages/GardenPage'
 import OraclePage from './pages/OraclePage'
+import AngelPage from './pages/AngelPage'
 
 export default function App() {
   return (
@@ -28,6 +29,14 @@ export default function App() {
             element={
               <AuthGuard>
                 <OraclePage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/angel"
+            element={
+              <AuthGuard>
+                <AngelPage />
               </AuthGuard>
             }
           />

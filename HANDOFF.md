@@ -1,5 +1,17 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 8b: Angel Numbers Keypad + Reading ✅ DONE (code)
+
+- `components/oracle/AngelKeypad.tsx` — celestial (moon/gold) numeric pad: big display, 0–9, ⌫, Clear, Reveal; max 3 digits; Reveal disabled unless 1–999.
+- `components/oracle/AngelReading.tsx` — gold serif title + archetype, Meaning/Message/Action sections, "✦ Resonates at {Hz}" chip, pinned "I AM …" affirmation. **No Save-to-Sky (Chunk 9), no tone (Chunk 11).**
+- `pages/AngelPage.tsx` + `styles/angel.css` — Reveal: `parseInt` (strips leading zeros, 007→7), rejects 0/blank/>999 with inline "Enter 1–999", then `getReading(n)` + `recordDraw(userId, n)` → renders the reading; "Read another number" resets the pad + clears `currentReading`.
+- `App.tsx`: `/angel` behind `AuthGuard`. `GardenView` HUD: "🔢 Angel Numbers" link next to "Draw today's cards".
+- Hardened `onDigit`/`onBackspace` to read the latest value from the store (fast taps never drop a digit).
+- **Verified in browser** (temp route + seeded reading, removed before commit): keypad enters digits (max 3), ⌫/Clear work, Reveal disabled for empty/`0`, enabled for `777` and `007`; the reading view shows title/archetype/Meaning/Message/Action + Hz chip + affirmation; "Read another" resets everything. Build clean; reduced-motion preserved.
+- **Live confirm (you):** entering 1–999 → Reveal shows that row from `green_angel_readings` and logs a `green_angel_draws` row. (Reveal hits Supabase, which hangs in the local sandbox — store calls are spec-exact.)
+
+---
+
 ## 2026-06-08 — CHUNK 8a: Angel Oracle Store ✅ DONE (code)
 
 - **DB (already live, Bianca):** `green_angel_readings` (999 rows) + `green_angel_draws` with RLS. No migrations run this chunk.

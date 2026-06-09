@@ -172,6 +172,12 @@ export default function GardenView() {
             >
               🃏 Draw today’s cards
             </Link>
+            <Link
+              to="/angel"
+              className="rounded-full bg-moon/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-moon"
+            >
+              🔢 Angel Numbers
+            </Link>
             <button
               type="button"
               onClick={toggleEditMode}
