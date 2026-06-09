@@ -1,5 +1,14 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-08 — CHUNK 8b.1: Celestial Filigree Angel Keypad ✅ DONE (code)
+
+- Replaced `components/oracle/AngelKeypad.tsx` with the approved **celestial relic** (mock-matched): deep-green filigree relic, gold/silver double frame, SVG filigree corners, 90-star starfield, nebula breathe, frame glow, display sheen — all self-contained `.akp` styles + `akp*` keyframes in the component (no CSS file touched).
+- Keypad is now **self-contained** (owns its digit input, max 3, validates 1–999) and calls **`onReveal(n)`** with the validated number (leading zeros stripped). Uses functional `setState` so fast taps never drop a digit.
+- `pages/AngelPage.tsx` adapted minimally: its reveal handler now receives `n` (`getReading(n)` + `recordDraw(userId, n)` → render `<AngelReading/>`). Reading view + "Read another" unchanged. (This small adaptation was required by the new `onReveal(n)` signature; `angelStore`, routes, and `angel.css` are untouched — `angel.css` keeps the reading-view styles; its old flat-keypad classes are now unused/harmless.)
+- **Verified in browser** (temp route, removed before commit): relic + 90 stars + 4 filigree corners render; digit entry (max 3, 4th ignored); Reveal disabled until 1–999; clicking Reveal fires `onReveal(123)` (hint "✦ Revealing the message of 123 ✦"). `prefers-reduced-motion` stills the animations (`.akp * { animation: none }`). Build clean.
+
+---
+
 ## 2026-06-08 — CHUNK 8b: Angel Numbers Keypad + Reading ✅ DONE (code)
 
 - `components/oracle/AngelKeypad.tsx` — celestial (moon/gold) numeric pad: big display, 0–9, ⌫, Clear, Reveal; max 3 digits; Reveal disabled unless 1–999.
