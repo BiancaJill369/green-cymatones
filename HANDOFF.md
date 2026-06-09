@@ -1,13 +1,14 @@
 # green.cymatones.com — Handoff
 
-## 2026-06-08 — CHUNK 5.1: Tiered Garden Layout ✅ DONE (code)
+## 2026-06-08 — CHUNK 5.1: Tiered Garden Layout (matches approved mock) ✅ DONE (code)
 
-Restructured `GardenView` into three depth bands (no DB change):
-- **Sky** (top ~48%): day/night gradient + sun/moon arc + night stars, ending at a horizon line (warm haze by day, cool blue by night).
-- **Forest Floor** (full-width mid band ~26%): the `forest_floor` bed now spans left→right; trees anchor to the band baseline and grow upward — tall canopies overflow up across the horizon into the sky for depth. Renders trees + mushrooms (placeholder until the oracle chunk).
-- **Foreground** (bottom ~26%): Herb Garden (left) + Wild Meadow (right), 50/50, low growth only.
-- Z-order sky(1) < forest(2) < foreground(3) < creatures(4). Day = butterflies across sky/forest + ladybugs over the beds; night = fireflies across forest + lower sky.
-- **Verified** (temp preview route, removed before commit): bands measured at the right proportions, forest full-width, tallest trees cross above the horizon, beds 50/50 and **stay side by side on mobile (375px)**. Reduced-motion + local-time day/night preserved. Build clean.
+Rebuilt `GardenView` to match the approved `garden_tiered_mock.html` (lifted its CSS/markup), with night driven by `useTimeOfDay()` (a `.night` class on `.stage`) instead of the mock's toggle button. No DB change.
+- **Sky** (top 54%): day/night gradients per mock + sun/moon (existing arc logic) + ~70 stars that fade in at night.
+- **Horizon** (top 50%, blurred haze band): warm by day, cool blue by night.
+- **Forest Floor** (full-width mid band, top 46% / height 30%, overflow visible): ground strip + trees ~1 per 150px width, randomized scale 0.7–1.6 with x-jitter and z-by-scale so big trees read as nearer; tall canopies cross up over the horizon. ~26 fireflies, night only.
+- **Foreground** (bottom 28%, flex): Herb Garden (left, sprouts only) + Wild Meadow (right, sprouts + small colored flowers), Cormorant Garamond labels, divider between.
+- Z-order sky(1) < horizon(2) < forest(3) < foreground(4) < creatures(6). Day = 2 butterflies + 2 ladybugs; night = fireflies (butterflies/ladybugs hidden). Placeholder greenery generated client-side in `useMemo` so counts adapt to width.
+- **Verified** in browser (temp preview route, removed before commit): measured sky=54%, full-width forest, horizon at 50%, tallest trees cross above it, beds 50/50, night active at local 21:00, meadow has flowers / herb doesn't; **beds stay side by side on mobile (375px)**. Reduced-motion preserved. Build clean.
 
 ## 2026-06-08 — CHUNK 3.5: Animated Garden Landing ($8/mo) ✅ DONE
 

@@ -1,30 +1,29 @@
 import { useMemo } from 'react'
 import type { TimeOfDay } from '../../hooks/useTimeOfDay'
-
-// Deterministic-ish star field (varies by index so it doesn't need Math.random).
-function buildStars(count: number) {
-  return Array.from({ length: count }, (_, i) => {
-    const x = (i * 47) % 100
-    const y = (i * 29) % 55 // keep stars in the upper sky band
-    const delay = (i % 8) * 0.5
-    return { x, y, delay }
-  })
-}
+import SunMoon from './SunMoon'
 
 export default function SkyBackground({ timeOfDay }: { timeOfDay: TimeOfDay }) {
-  const stars = useMemo(() => buildStars(60), [])
+  // ~70 stars, counts/positions generated client-side (fade in at night via CSS).
+  const stars = useMemo(
+    () =>
+      Array.from({ length: 70 }, () => ({
+        left: Math.random() * 100,
+        top: Math.random() * 85,
+        delay: Math.random() * 3,
+      })),
+    [],
+  )
 
   return (
-    <div className={`garden-sky garden-sky--${timeOfDay}`}>
-      <div className="garden-stars" aria-hidden="true">
-        {stars.map((s, i) => (
-          <span
-            key={i}
-            className="garden-star"
-            style={{ left: `${s.x}%`, top: `${s.y}%`, animationDelay: `${s.delay}s` }}
-          />
-        ))}
-      </div>
+    <div className="sky">
+      <SunMoon timeOfDay={timeOfDay} />
+      {stars.map((s, i) => (
+        <span
+          key={i}
+          className="star"
+          style={{ left: `${s.left}%`, top: `${s.top}%`, animationDelay: `${s.delay}s` }}
+        />
+      ))}
     </div>
   )
 }
