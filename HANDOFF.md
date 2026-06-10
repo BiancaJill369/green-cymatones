@@ -1,5 +1,22 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-09 — CHUNK 13a: Art Easel (shell + gallery + 2 games) ✅ DONE (code)
+
+- **DB (already live):** `green_art_creations` with RLS. Code only.
+- `stores/artStore.ts` — `loadCreations`, `saveCreation({userId,gameType,title,thumbnail,state})` (insert + prepend), `deleteCreation`.
+- `pages/EaselPage.tsx` + `styles/easel.css` — hub with **6 game tiles (2 live, 4 "Coming soon")** + a **Games / My Gallery** tab toggle.
+- Games (forwardRef + `GameHandle` = `renderToCanvas` + `getState`):
+  - `GardenColoring` — SVG line-art garden (sky/sun/ground/pot/3 flowers/leaves), 16-color palette, **tap a region to fill**.
+  - `PixelMosaic` — 16×16 grid, palette + eraser, **tap/drag to paint** (`touch-action:none`, pointer capture).
+- `SaveBar` — calls the game's `renderToCanvas`, scales to 320px wide, `toDataURL('image/jpeg',0.6)` for the thumbnail, grabs `getState`, then `saveCreation` + toast.
+- `Gallery` — thumbnail grid (label + date), tap → large view, **Delete**.
+- `App.tsx`: `/easel` behind `AuthGuard`. HUD: "🎨 Art Easel" link.
+- **Verified in browser** (temp route + seeded creations, removed before commit): hub shows 2 playable + 4 coming-soon; coloring fills regions (sky/sun/ground/flowers); mosaic paints a grid by drag; gallery lists pieces, opens the large view, has Delete. Build clean; touch painting uses pointer events + `touch-action:none`; reduced-motion preserved.
+- **Live confirm (you):** "Save to gallery" writes a `green_art_creations` row with a thumbnail; the gallery lists it; delete removes it. (Supabase writes hang locally; the thumbnail/canvas + store logic are spec-exact.)
+- The other 4 games (Mandala Bloom, Zen Garden, Petal Drop, Watercolor Meadow) are the "Coming soon" tiles → 13b/13c.
+
+---
+
 ## 2026-06-09 — CHUNK 14: Character Creator ("the Mirror") ✅ DONE (code)
 
 - **DB (already live):** `green_profiles.character_type` + `character_name` (migration 001). Code only.

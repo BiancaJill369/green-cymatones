@@ -9,6 +9,7 @@ import OraclePage from './pages/OraclePage'
 import AngelPage from './pages/AngelPage'
 import JournalPage from './pages/JournalPage'
 import TonesPage from './pages/TonesPage'
+import EaselPage from './pages/EaselPage'
 
 export default function App() {
   return (
@@ -55,6 +56,14 @@ export default function App() {
             element={
               <AuthGuard>
                 <TonesPage />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/easel"
+            element={
+              <AuthGuard>
+                <EaselPage />
               </AuthGuard>
             }
           />

@@ -225,6 +225,12 @@ export default function GardenView() {
             >
               🍄 Frequency Tones
             </Link>
+            <Link
+              to="/easel"
+              className="rounded-full bg-sun/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-sun"
+            >
+              🎨 Art Easel
+            </Link>
             <button
               type="button"
               onClick={toggleEditMode}
