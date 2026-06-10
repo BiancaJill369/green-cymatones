@@ -1,5 +1,16 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-09 — CHUNK 14: Character Creator ("the Mirror") ✅ DONE (code)
+
+- **DB (already live):** `green_profiles.character_type` + `character_name` (migration 001). Code only.
+- `components/character/CharacterCreator.tsx` + `styles/character.css` — "Who tends this garden?" with the 6 characters (moss_sprite/fern_walker/vine_weaver/pond_guardian/bark_sage/dew_drop), each a tile with emoji + name (in its character color) + blurb + accent border on select; a name field prefilled with `display_name`; "Enter the garden" disabled until a type is chosen + name non-empty.
+- `userStore.updateCharacter(userId, type, name)` (+ exposed via `useAuth`) — updates `green_profiles` and refreshes `greenProfile` locally.
+- `GardenView` — renders the creator **forced** (no Cancel) when `greenProfile.character_type` is null, or **dismissable** when reopened. HUD identity chip now shows **"{emoji} {character_name} the {Label}"** and is clickable → **Change character** reopens the creator (prefilled + preselected).
+- **Verified in browser** (temp route + seeded profile, removed before commit): no-character → forced creator (6 tiles, prefilled name "Bianca", submit gated on type, select → accent glow); character set → HUD shows "🌿 Willow the Moss Sprite", clicking it reopens the creator with Cancel + "Willow" + Moss Sprite preselected. Build clean; reduced-motion preserved.
+- **Live confirm (you):** a member with no character sees the creator on entry; picking + naming saves `character_type` + `character_name` to `green_profiles`; HUD reflects it; "Change character" reopens. (Supabase write hangs locally; logic is spec-exact.)
+
+---
+
 ## 2026-06-09 — CHUNK 12: Shadowmoss + I AM Statements ✅ DONE (code)
 
 - **DB (already live, Bianca):** `green_iam_statements` (56) + `green_shadowmoss_encounters` with RLS (migration 010).

@@ -8,6 +8,7 @@ export function useAuth() {
   const greenProfile = useUserStore((s) => s.greenProfile)
   const isAdmin = useUserStore((s) => s.isAdmin)
   const isLoading = useUserStore((s) => s.isLoading)
+  const updateCharacter = useUserStore((s) => s.updateCharacter)
 
   const signOut = async () => {
     await supabase.auth.signOut()
@@ -20,6 +21,7 @@ export function useAuth() {
     greenProfile,
     isAdmin,
     isLoading,
+    updateCharacter,
     signOut,
   }
 }

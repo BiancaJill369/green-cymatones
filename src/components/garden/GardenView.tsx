@@ -16,6 +16,7 @@ import GardenElement from './GardenElement'
 import Creatures from './Creatures'
 import Shadowmoss from './Shadowmoss'
 import Toasts from '../common/Toasts'
+import CharacterCreator, { CHARACTERS } from '../character/CharacterCreator'
 
 export default function GardenView() {
   const timeOfDay = useTimeOfDay()
@@ -39,6 +40,7 @@ export default function GardenView() {
 
   const [readOnlyEl, setReadOnlyEl] = useState<El | null>(null)
   const [selectedStar, setSelectedStar] = useState<SkyStar | null>(null)
+  const [showCreator, setShowCreator] = useState(false)
 
   useEffect(() => {
     if (user?.id) {
@@ -77,6 +79,11 @@ export default function GardenView() {
   )
 
   const name = greenProfile?.display_name || user?.email || 'friend'
+  const charDef = greenProfile?.character_type
+    ? CHARACTERS.find((c) => c.type === greenProfile.character_type) ?? null
+    : null
+  const needsCharacter = !!greenProfile && !greenProfile.character_type
+
   const handleSignOut = async () => {
     await signOut()
     navigate('/', { replace: true })
@@ -174,9 +181,24 @@ export default function GardenView() {
         className="absolute left-0 right-0 top-0 flex items-center justify-between px-4 py-3 text-sm"
         style={{ zIndex: 20 }}
       >
-        <span className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur">
-          {isEditMode ? 'Tap a plant to arrange it' : `Welcome, ${name}`}
-        </span>
+        {isEditMode ? (
+          <span className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur">
+            Tap a plant to arrange it
+          </span>
+        ) : charDef ? (
+          <button
+            type="button"
+            onClick={() => setShowCreator(true)}
+            title="Change character"
+            className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur transition hover:bg-night-sky/70"
+          >
+            {charDef.emoji} {greenProfile?.character_name} the {charDef.label}
+          </button>
+        ) : (
+          <span className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur">
+            Welcome, {name}
+          </span>
+        )}
         {!isEditMode && (
           <div className="flex items-center gap-2">
             <Link
@@ -310,6 +332,11 @@ export default function GardenView() {
             Save
           </button>
         </div>
+      )}
+
+      {/* Character Creator — first-entry (forced) or "Change character" (dismissable) */}
+      {(needsCharacter || showCreator) && (
+        <CharacterCreator onClose={() => setShowCreator(false)} dismissable={!needsCharacter} />
       )}
     </div>
   )
