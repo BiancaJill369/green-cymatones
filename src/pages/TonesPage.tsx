@@ -18,7 +18,6 @@ export default function TonesPage() {
   const loadTracks = useFrequencyStore((s) => s.loadTracks)
   const loadListening = useFrequencyStore((s) => s.loadListening)
   const playTrack = useFrequencyStore((s) => s.playTrack)
-  const stopPlayback = useFrequencyStore((s) => s.stopPlayback)
 
   useEffect(() => {
     void loadTracks()
@@ -26,12 +25,10 @@ export default function TonesPage() {
   useEffect(() => {
     if (user?.id) void loadListening(user.id)
   }, [user?.id, loadListening])
-  // flush listening + stop audio when leaving the page
-  useEffect(() => {
-    return () => {
-      if (user?.id) void stopPlayback(user.id)
-    }
-  }, [user?.id, stopPlayback])
+  // NOTE: audio is intentionally NOT stopped when this panel closes — the single
+  // global Howler instance (frequencyStore) keeps playing across panels. The
+  // garden MiniPlayer controls stop/pause. Listening still flushes on pause/stop/
+  // track-change and every ~10s.
 
   const categories = Object.keys(tracksByCategory)
   const onPlay = (t: Track) => {

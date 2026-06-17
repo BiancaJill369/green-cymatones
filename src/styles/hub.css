@@ -1,0 +1,144 @@
+/* green.cymatones.com — Garden Hub (Chunk 15-pre): in-scene hotspots, overlay panels,
+   persistent mini-player. Garden stays mounted behind every panel. */
+
+/* ---- in-scene hotspots ---- */
+.hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+}
+.hotspot .hs-emoji {
+  font-size: 1.9rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+  transition: transform 0.15s ease;
+}
+.hotspot:hover .hs-emoji { transform: translateY(-3px) scale(1.08); }
+.hotspot:active .hs-emoji { transform: scale(0.95); }
+.hotspot .hs-label {
+  font-size: 0.66rem;
+  color: #f4f9f0;
+  background: rgba(6, 29, 20, 0.6);
+  padding: 1px 8px;
+  border-radius: 999px;
+  backdrop-filter: blur(3px);
+  white-space: nowrap;
+}
+
+/* ---- overlay panel ---- */
+.panel-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(3, 16, 10, 0.62);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: panelFade 0.2s ease;
+}
+@keyframes panelFade { from { opacity: 0; } to { opacity: 1; } }
+.panel-sheet {
+  position: relative;
+  width: 100%;
+  max-height: 92vh;
+  overflow: auto;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+  animation: sheetUp 0.25s ease;
+}
+@keyframes sheetUp { from { transform: translateY(24px); } to { transform: translateY(0); } }
+@media (min-width: 768px) {
+  .panel-scrim { align-items: center; padding: 24px; }
+  .panel-sheet { max-width: 760px; max-height: 88vh; border-radius: 20px; }
+}
+/* the feature screens render inside the sheet — drop their forced viewport height */
+.panel-sheet .oracle,
+.panel-sheet .angel,
+.panel-sheet .akp,
+.panel-sheet .journal,
+.panel-sheet .tones,
+.panel-sheet .easel,
+.panel-sheet .sky-panel { min-height: auto; }
+.panel-close {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 55;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: rgba(6, 29, 20, 0.9);
+  color: #f4f9f0;
+  font-size: 1.1rem;
+  backdrop-filter: blur(4px);
+}
+
+/* ---- persistent mini-player ---- */
+.mini-player {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(92vw, 420px);
+  background: rgba(6, 29, 20, 0.95);
+  border: 1px solid rgba(124, 191, 138, 0.35);
+  border-radius: 999px;
+  padding: 8px 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  color: #f4f9f0;
+}
+.mini-player .mp-pp {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #5ce08a, #34d27e);
+  color: #06281a;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.mini-player .mp-info { flex: 1; min-width: 0; cursor: pointer; text-align: left; background: none; border: none; color: inherit; }
+.mini-player .mp-name { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-player .mp-group { font-size: 0.72rem; color: #9bbfa6; text-transform: capitalize; }
+.mini-player .mp-stop { background: none; border: none; color: #9bbfa6; cursor: pointer; font-size: 1rem; flex-shrink: 0; }
+
+/* ---- sky panel ---- */
+.sky-panel {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #10183a, #0b1026);
+  color: #f0e6ff;
+  padding: 28px 18px 60px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.sky-panel h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; color: #ffd76b; text-align: center; }
+.sky-panel .sky-sub { text-align: center; color: #b6aee0; font-size: 0.9rem; margin-top: 4px; }
+.sky-empty { color: #b6aee0; text-align: center; margin-top: 24px; font-style: italic; }
+.sky-list { list-style: none; padding: 0; margin: 18px auto 0; max-width: 560px; display: flex; flex-direction: column; gap: 10px; }
+.sky-row { display: flex; align-items: center; gap: 12px; border: 1px solid rgba(207, 232, 122, 0.25); border-radius: 12px; padding: 10px 14px; background: rgba(255, 255, 255, 0.04); }
+.sky-dot { width: 12px; height: 12px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px 2px currentColor; flex-shrink: 0; }
+.sky-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sky-label { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: #ffe9a8; }
+.sky-detail { font-size: 0.85rem; color: #cdc6e8; }
+.sky-remove { background: none; border: 1px solid rgba(255, 255, 255, 0.25); color: #cdc6e8; border-radius: 999px; padding: 5px 12px; font-size: 0.78rem; cursor: pointer; flex-shrink: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-scrim, .panel-sheet { animation: none; }
+  .hotspot .hs-emoji { transition: none; }
+}

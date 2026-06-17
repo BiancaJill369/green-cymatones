@@ -1,15 +1,10 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import AuthProvider from './providers/AuthProvider'
 import AuthGuard from './components/auth/AuthGuard'
 import LandingPage from './pages/LandingPage'
 import AuthPage from './pages/AuthPage'
 import SubscribePage from './pages/SubscribePage'
 import GardenPage from './pages/GardenPage'
-import OraclePage from './pages/OraclePage'
-import AngelPage from './pages/AngelPage'
-import JournalPage from './pages/JournalPage'
-import TonesPage from './pages/TonesPage'
-import EaselPage from './pages/EaselPage'
 
 export default function App() {
   return (
@@ -27,46 +22,12 @@ export default function App() {
               </AuthGuard>
             }
           />
-          <Route
-            path="/oracle"
-            element={
-              <AuthGuard>
-                <OraclePage />
-              </AuthGuard>
-            }
-          />
-          <Route
-            path="/angel"
-            element={
-              <AuthGuard>
-                <AngelPage />
-              </AuthGuard>
-            }
-          />
-          <Route
-            path="/journal"
-            element={
-              <AuthGuard>
-                <JournalPage />
-              </AuthGuard>
-            }
-          />
-          <Route
-            path="/tones"
-            element={
-              <AuthGuard>
-                <TonesPage />
-              </AuthGuard>
-            }
-          />
-          <Route
-            path="/easel"
-            element={
-              <AuthGuard>
-                <EaselPage />
-              </AuthGuard>
-            }
-          />
+          {/* Features now open as panels over the garden. Old routes deep-link in. */}
+          <Route path="/oracle" element={<Navigate to="/garden?panel=oracle" replace />} />
+          <Route path="/angel" element={<Navigate to="/garden?panel=angel" replace />} />
+          <Route path="/journal" element={<Navigate to="/garden?panel=journal" replace />} />
+          <Route path="/tones" element={<Navigate to="/garden?panel=tones" replace />} />
+          <Route path="/easel" element={<Navigate to="/garden?panel=easel" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

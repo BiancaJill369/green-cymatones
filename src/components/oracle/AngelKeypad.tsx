@@ -14,10 +14,10 @@ const AKP_STYLES = `
   --silver:#cdd6db;--silver-br:#eef3f5;--silver-dk:#9aa6ac;--display:'Cormorant Garamond',serif;
   background:radial-gradient(120% 90% at 50% 10%,#0c3526 0%,#06231a 45%,#02110b 100%)}
 .akp *{box-sizing:border-box;margin:0;padding:0}
-.akp .stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.akp .stars{position:absolute;inset:0;z-index:0;pointer-events:none}
 .akp .star{position:absolute;border-radius:50%;background:#fff;animation:akpTwinkle 3.5s ease-in-out infinite}
 @keyframes akpTwinkle{0%,100%{opacity:.15}50%{opacity:.9}}
-.akp .nebula{position:fixed;width:520px;height:520px;border-radius:50%;z-index:0;pointer-events:none;
+.akp .nebula{position:absolute;width:520px;height:520px;border-radius:50%;z-index:0;pointer-events:none;
   background:radial-gradient(circle,rgba(52,210,126,.18),transparent 65%);filter:blur(20px);
   top:8%;left:50%;transform:translateX(-50%);animation:akpBreathe 9s ease-in-out infinite}
 @keyframes akpBreathe{0%,100%{opacity:.5;transform:translateX(-50%) scale(1)}50%{opacity:.85;transform:translateX(-50%) scale(1.08)}}

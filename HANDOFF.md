@@ -1,5 +1,15 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-10 — CHUNK 15-pre: Garden Hub (in-garden panels + persistent audio + tabs) ✅ DONE (code)
+
+The garden is now the single home; features open as overlay panels over the still-mounted garden, and audio persists across all of them. No DB changes.
+- **Shell + panels:** `GardenView` is the always-mounted shell. `activePanel` is driven by the URL `?panel=…` (so each page's existing "Back to garden" link closes the panel for free, and `/garden?panel=oracle` deep-links). Overlay = scrim + bottom-sheet (mobile) / centered modal (desktop) with the garden **dimmed but not unmounted** behind; the existing pages render inside (OraclePage/AngelPage/JournalPage/TonesPage/EaselPage + new `SkyPanel`).
+- **In-scene hotspots:** 6 labeled tappable objects placed in the scene — 🔢 Angel, ✨ Sky, 🃏 Oracle, 🍄 Frequencies, 📖 Greenhouse, 🎨 Art Easel. HUD feature pills removed; HUD keeps character identity + Arrange + Sign out.
+- **Persistent global audio (the key one):** the single module-level Howler in `frequencyStore` already survives unmounts; removed TonesPage's stop-on-unmount so closing Tones / opening Easel / drawing a card never stops playback. New `MiniPlayer` (garden + above any panel) shows now-playing + group, play/pause, stop, tap → reopen Tones. Listening still flushes to `green_listening_daily` (pause/stop/change/10s). MiniPlayer hidden only while the Tones panel itself is open.
+- **Tabs not pills:** Easel "Games / My Gallery" restyled to underline tabs (bottom border + accent underline, no filled pill).
+- **Routing:** single `/garden`; old `/oracle /angel /journal /tones /easel` → redirect to `/garden?panel=…`. AuthGuard/gate unchanged.
+- **Verified in browser** (drove the user store to render /garden; removed before commit): 6 hotspots; tapping opens a panel with the garden still mounted behind; X / scrim / the page's own back-link all close it; deep-links open; **played a track in Tones → closed it → opened Easel → SAME track still playing with the MiniPlayer showing "🍄 Heart Chakra · chakras"**; tabs render with no pill bg + green underline. Build clean.
+
 ## 2026-06-10 — Fix: auth gate race ✅ DONE
 - Active members (e.g. bruehlig@gmail.com) were bounced to /subscribe on login. Cause: AuthPage decided membership itself, racing `loadGreenContext` (greenSubscription still null). Fixes: AuthProvider keeps `isLoading` true from session-detect until membership fully resolves (try/finally); AuthPage no longer gates — it navigates to `/` and lets home + AuthGuard decide once `isLoading===false`; `fetchGreenSubscription` logs read errors loudly (never silently "not a member"). Verified by driving the store: active+loading → "Loading…" not /subscribe; loaded+active → garden; post-verify → `/` not /subscribe. Commit `a2c5900`.
 

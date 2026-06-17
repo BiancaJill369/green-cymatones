@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import '../../styles/garden.css'
+import '../../styles/hub.css'
 import { useTimeOfDay } from '../../hooks/useTimeOfDay'
 import { useAuth } from '../../hooks/useAuth'
 import { useGardenStore } from '../../stores/gardenStore'
@@ -17,6 +18,25 @@ import Creatures from './Creatures'
 import Shadowmoss from './Shadowmoss'
 import Toasts from '../common/Toasts'
 import CharacterCreator, { CHARACTERS } from '../character/CharacterCreator'
+import MiniPlayer from './MiniPlayer'
+import SkyPanel from './SkyPanel'
+import OraclePage from '../../pages/OraclePage'
+import AngelPage from '../../pages/AngelPage'
+import JournalPage from '../../pages/JournalPage'
+import TonesPage from '../../pages/TonesPage'
+import EaselPage from '../../pages/EaselPage'
+
+const PANELS = ['oracle', 'angel', 'journal', 'tones', 'easel', 'sky'] as const
+type Panel = (typeof PANELS)[number]
+
+const HOTSPOTS: { panel: Panel; emoji: string; label: string; top: number; left: number }[] = [
+  { panel: 'angel', emoji: '🔢', label: 'Angel Numbers', top: 18, left: 14 },
+  { panel: 'sky', emoji: '✨', label: 'Sky of Stars', top: 12, left: 82 },
+  { panel: 'oracle', emoji: '🃏', label: 'Oracle', top: 60, left: 17 },
+  { panel: 'tones', emoji: '🍄', label: 'Frequencies', top: 64, left: 44 },
+  { panel: 'journal', emoji: '📖', label: 'Greenhouse', top: 60, left: 71 },
+  { panel: 'easel', emoji: '🎨', label: 'Art Easel', top: 82, left: 86 },
+]
 
 export default function GardenView() {
   const timeOfDay = useTimeOfDay()
@@ -41,6 +61,17 @@ export default function GardenView() {
   const [readOnlyEl, setReadOnlyEl] = useState<El | null>(null)
   const [selectedStar, setSelectedStar] = useState<SkyStar | null>(null)
   const [showCreator, setShowCreator] = useState(false)
+
+  // Which feature panel is open is driven by the URL (?panel=…), so the pages'
+  // existing "Back to garden" links (→ /garden) close the panel for free, and
+  // deep links like /garden?panel=oracle work on load.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const panelParam = searchParams.get('panel')
+  const activePanel: Panel | null = (PANELS as readonly string[]).includes(panelParam ?? '')
+    ? (panelParam as Panel)
+    : null
+  const openPanel = (p: Panel) => setSearchParams({ panel: p })
+  const closePanel = () => setSearchParams({})
 
   useEffect(() => {
     if (user?.id) {
@@ -176,6 +207,21 @@ export default function GardenView() {
 
       <Shadowmoss />
 
+      {/* in-scene hotspots — tap to open a feature panel over the garden */}
+      {!isEditMode &&
+        HOTSPOTS.map((h) => (
+          <button
+            key={h.panel}
+            type="button"
+            className="hotspot"
+            style={{ left: `${h.left}%`, top: `${h.top}%` }}
+            onClick={() => openPanel(h.panel)}
+          >
+            <span className="hs-emoji">{h.emoji}</span>
+            <span className="hs-label">{h.label}</span>
+          </button>
+        ))}
+
       {/* HUD */}
       <div
         className="absolute left-0 right-0 top-0 flex items-center justify-between px-4 py-3 text-sm"
@@ -201,36 +247,6 @@ export default function GardenView() {
         )}
         {!isEditMode && (
           <div className="flex items-center gap-2">
-            <Link
-              to="/oracle"
-              className="rounded-full bg-green-500/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-green-400"
-            >
-              🃏 Draw today’s cards
-            </Link>
-            <Link
-              to="/angel"
-              className="rounded-full bg-moon/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-moon"
-            >
-              🔢 Angel Numbers
-            </Link>
-            <Link
-              to="/journal"
-              className="rounded-full bg-sage/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-sage"
-            >
-              📖 Journal
-            </Link>
-            <Link
-              to="/tones"
-              className="rounded-full bg-emerald/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-emerald"
-            >
-              🍄 Frequency Tones
-            </Link>
-            <Link
-              to="/easel"
-              className="rounded-full bg-sun/80 px-3 py-1 font-semibold text-night-sky backdrop-blur transition hover:bg-sun"
-            >
-              🎨 Art Easel
-            </Link>
             <button
               type="button"
               onClick={toggleEditMode}
@@ -344,6 +360,28 @@ export default function GardenView() {
       {(needsCharacter || showCreator) && (
         <CharacterCreator onClose={() => setShowCreator(false)} dismissable={!needsCharacter} />
       )}
+
+      {/* feature panels over the (still-mounted) garden */}
+      {activePanel && (
+        <>
+          <div className="panel-scrim" onClick={closePanel}>
+            <div className="panel-sheet" onClick={(e) => e.stopPropagation()}>
+              {activePanel === 'oracle' && <OraclePage />}
+              {activePanel === 'angel' && <AngelPage />}
+              {activePanel === 'journal' && <JournalPage />}
+              {activePanel === 'tones' && <TonesPage />}
+              {activePanel === 'easel' && <EaselPage />}
+              {activePanel === 'sky' && <SkyPanel />}
+            </div>
+          </div>
+          <button type="button" className="panel-close" onClick={closePanel} aria-label="Close panel">
+            ✕
+          </button>
+        </>
+      )}
+
+      {/* persistent global audio — survives panel open/close; hidden while the Tones panel is open */}
+      {activePanel !== 'tones' && <MiniPlayer onOpen={() => openPanel('tones')} />}
     </div>
   )
 }

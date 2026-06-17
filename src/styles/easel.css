@@ -35,16 +35,20 @@
 .easel-back:hover, .easel-back-link:hover { background: rgba(124, 191, 138, 0.12); }
 .easel-back-link { margin-top: 6px; }
 
-.easel-tabs { display: flex; gap: 8px; }
+/* tab style (not pills): a row with a bottom border + an underline indicator */
+.easel-tabs { display: flex; gap: 24px; border-bottom: 1px solid rgba(124, 191, 138, 0.25); }
 .easel-tabs button {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(124, 191, 138, 0.3);
-  color: #dcecdf;
-  border-radius: 999px;
-  padding: 8px 18px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: #9bbfa6;
+  padding: 8px 2px;
   cursor: pointer;
+  font-size: 0.95rem;
 }
-.easel-tabs button.active { background: linear-gradient(135deg, #5ce08a, #34d27e); color: #06281a; border-color: transparent; font-weight: 600; }
+.easel-tabs button:hover { color: #dcecdf; }
+.easel-tabs button.active { color: #f4f9f0; font-weight: 600; border-bottom-color: #5ce08a; }
 
 /* hub tiles */
 .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 620px; }
