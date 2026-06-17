@@ -47,7 +47,7 @@ export default function SaveBar({ gameType, gameRef, onSaved }: Props) {
     setSaving(false)
     setTitle('')
     if (g.granted && g.bloom) {
-      pushToast(`🌱 Saved! You earned a ${g.bloom.display_name} seed — it'll bloom tomorrow`)
+      pushToast(`🌱 Saved! You earned a ${g.bloom.display_name} seed — find it in your Seed Bag`)
     } else {
       pushToast('🎨 Saved to your gallery')
     }

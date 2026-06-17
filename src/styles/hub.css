@@ -1,11 +1,30 @@
 /* green.cymatones.com — Garden Hub (Chunk 15-pre): in-scene hotspots, overlay panels,
    persistent mini-player. Garden stays mounted behind every panel. */
 
-/* ---- in-scene hotspots ---- */
-.hotspot {
+/* ---- ONE feature menu dock (all launchers together, above the beds) ---- */
+.feature-menu {
   position: absolute;
-  transform: translate(-50%, -50%);
-  z-index: 15;
+  left: 50%;
+  bottom: 32%;
+  transform: translateX(-50%);
+  z-index: 16;
+  display: flex;
+  gap: 8px;
+  max-width: 96vw;
+  padding: 10px 12px;
+  overflow-x: auto;
+  background: rgba(6, 29, 20, 0.45);
+  border: 1px solid rgba(124, 191, 138, 0.3);
+  border-radius: 18px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  scrollbar-width: none;
+}
+.feature-menu::-webkit-scrollbar { display: none; }
+.fm-item {
+  position: relative;
+  flex: 0 0 auto;
+  width: 70px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -13,25 +32,55 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 6px;
+  padding: 4px 2px;
+  color: #f4f9f0;
 }
-.hotspot .hs-emoji {
-  font-size: 1.9rem;
+.fm-icon {
+  font-size: 1.7rem;
   line-height: 1;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
   transition: transform 0.15s ease;
 }
-.hotspot:hover .hs-emoji { transform: translateY(-3px) scale(1.08); }
-.hotspot:active .hs-emoji { transform: scale(0.95); }
-.hotspot .hs-label {
-  font-size: 0.66rem;
-  color: #f4f9f0;
-  background: rgba(6, 29, 20, 0.6);
-  padding: 1px 8px;
+.fm-item:hover .fm-icon { transform: translateY(-3px) scale(1.08); }
+.fm-item:active .fm-icon { transform: scale(0.95); }
+.fm-label { font-size: 0.64rem; line-height: 1.15; text-align: center; }
+.fm-badge {
+  position: absolute;
+  top: -2px;
+  right: 6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
   border-radius: 999px;
-  backdrop-filter: blur(3px);
-  white-space: nowrap;
+  background: #5ce08a;
+  color: #06281a;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
 }
+
+/* ---- Seed Bag panel ---- */
+.seed-bag {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0c2c1d, #06180f);
+  color: #eaf3ea;
+  padding: 28px 18px 60px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.seed-bag .wrap { max-width: 560px; margin: 0 auto; }
+.seed-bag h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; color: #cfe9c4; text-align: center; }
+.sb-sub { text-align: center; color: #9bbfa6; font-size: 0.9rem; margin-top: 4px; }
+.sb-empty { color: #9bbfa6; text-align: center; margin-top: 24px; font-style: italic; line-height: 1.5; }
+.sb-list { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.sb-item { display: flex; align-items: center; gap: 12px; border: 1px solid rgba(124, 191, 138, 0.25); border-radius: 12px; padding: 10px 14px; background: rgba(255, 255, 255, 0.04); }
+.sb-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+.sb-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sb-name { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: #eaf3ea; }
+.sb-bed { font-size: 0.8rem; color: #9bbfa6; }
+.sb-plant { flex-shrink: 0; background: linear-gradient(135deg, #5ce08a, #34d27e); color: #06281a; border: none; border-radius: 999px; padding: 7px 18px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+.sb-arrange { display: block; margin: 26px auto 0; background: transparent; border: 1px solid rgba(234, 243, 234, 0.35); color: #eaf3ea; border-radius: 999px; padding: 12px 34px; font-weight: 600; cursor: pointer; }
+.sb-arrange:hover { background: rgba(234, 243, 234, 0.08); }
 
 /* ---- overlay panel ---- */
 .panel-scrim {
@@ -67,7 +116,8 @@
 .panel-sheet .journal,
 .panel-sheet .tones,
 .panel-sheet .easel,
-.panel-sheet .sky-panel { min-height: auto; }
+.panel-sheet .sky-panel,
+.panel-sheet .seed-bag { min-height: auto; }
 .panel-close {
   position: fixed;
   top: 14px;
@@ -140,5 +190,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .panel-scrim, .panel-sheet { animation: none; }
-  .hotspot .hs-emoji { transition: none; }
+  .fm-icon { transition: none; }
 }

@@ -26,7 +26,7 @@ export default function AngelPage() {
       await recordDraw(user.id, n)
       const g = await grantSeed({ userId: user.id, activityType: 'angel', sourceKey: 'angel' })
       if (g.granted && g.bloom) {
-        pushToast(`🌱 You earned a ${g.bloom.display_name} seed — it'll bloom in your garden tomorrow`)
+        pushToast(`🌱 You earned a ${g.bloom.display_name} seed — it's waiting in your Seed Bag`)
       }
     }
     setBusy(false)

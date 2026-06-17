@@ -51,7 +51,7 @@ export default function JournalPage() {
     const g = await grantSeed({ userId: user.id, activityType: 'journal', sourceKey: 'journal' })
     setSaving(false)
     if (g.granted && g.bloom) {
-      pushToast(`🌱 You earned a ${g.bloom.display_name} seed — it'll bloom in your garden tomorrow`)
+      pushToast(`🌱 You earned a ${g.bloom.display_name} seed — it's waiting in your Seed Bag`)
     } else {
       pushToast('Entry saved 🌿 — you already received today’s journal bloom')
     }

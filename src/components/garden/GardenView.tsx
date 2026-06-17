@@ -21,22 +21,25 @@ import Toasts from '../common/Toasts'
 import CharacterCreator, { CHARACTERS } from '../character/CharacterCreator'
 import MiniPlayer from './MiniPlayer'
 import SkyPanel from './SkyPanel'
+import SeedBagPanel from './SeedBagPanel'
 import OraclePage from '../../pages/OraclePage'
 import AngelPage from '../../pages/AngelPage'
 import JournalPage from '../../pages/JournalPage'
 import TonesPage from '../../pages/TonesPage'
 import EaselPage from '../../pages/EaselPage'
 
-const PANELS = ['oracle', 'angel', 'journal', 'tones', 'easel', 'sky'] as const
+const PANELS = ['oracle', 'angel', 'journal', 'tones', 'easel', 'sky', 'seedbag'] as const
 type Panel = (typeof PANELS)[number]
 
-const HOTSPOTS: { panel: Panel; emoji: string; label: string; top: number; left: number }[] = [
-  { panel: 'angel', emoji: '🔢', label: 'Angel Numbers', top: 18, left: 14 },
-  { panel: 'sky', emoji: '✨', label: 'Sky of Stars', top: 12, left: 82 },
-  { panel: 'oracle', emoji: '🃏', label: 'Oracle', top: 60, left: 17 },
-  { panel: 'tones', emoji: '🍄', label: 'Frequencies', top: 64, left: 44 },
-  { panel: 'journal', emoji: '📖', label: 'Greenhouse', top: 60, left: 71 },
-  { panel: 'easel', emoji: '🎨', label: 'Art Easel', top: 82, left: 86 },
+// All feature launchers live together in ONE menu dock above the beds.
+const MENU: { panel: Panel; icon: string; label: string }[] = [
+  { panel: 'oracle', icon: '🃏', label: 'Oracle' },
+  { panel: 'angel', icon: '🔢', label: 'Angel Numbers' },
+  { panel: 'tones', icon: '🍄', label: 'Frequencies' },
+  { panel: 'journal', icon: '📖', label: 'Journal' },
+  { panel: 'seedbag', icon: '🌱', label: 'Seed Bag' },
+  { panel: 'easel', icon: '🎨', label: 'Art Easel' },
+  { panel: 'sky', icon: '✨', label: 'Sky of Stars' },
 ]
 
 export default function GardenView() {
@@ -60,6 +63,8 @@ export default function GardenView() {
   const loadStars = useSkyStore((s) => s.loadStars)
   const loadLegend = useSeedStore((s) => s.loadLegend)
   const loadTodayGrants = useSeedStore((s) => s.loadTodayGrants)
+  const loadBag = useSeedStore((s) => s.loadBag)
+  const bagCount = useSeedStore((s) => s.bag.length)
 
   const [readOnlyEl, setReadOnlyEl] = useState<El | null>(null)
   const [selectedStar, setSelectedStar] = useState<SkyStar | null>(null)
@@ -82,8 +87,9 @@ export default function GardenView() {
       void loadStars(user.id)
       void loadLegend()
       void loadTodayGrants(user.id)
+      void loadBag(user.id)
     }
-  }, [user?.id, loadGarden, loadStars, loadLegend, loadTodayGrants])
+  }, [user?.id, loadGarden, loadStars, loadLegend, loadTodayGrants, loadBag])
 
   useEffect(() => {
     if (!oracleLoaded) void loadDecks()
@@ -214,20 +220,25 @@ export default function GardenView() {
 
       <Shadowmoss />
 
-      {/* in-scene hotspots — tap to open a feature panel over the garden */}
-      {!isEditMode &&
-        HOTSPOTS.map((h) => (
-          <button
-            key={h.panel}
-            type="button"
-            className="hotspot"
-            style={{ left: `${h.left}%`, top: `${h.top}%` }}
-            onClick={() => openPanel(h.panel)}
-          >
-            <span className="hs-emoji">{h.emoji}</span>
-            <span className="hs-label">{h.label}</span>
-          </button>
-        ))}
+      {/* ONE feature menu — all launchers together in a dock above the beds */}
+      {!isEditMode && (
+        <nav className="feature-menu" aria-label="Garden features">
+          {MENU.map((m) => (
+            <button
+              key={m.panel}
+              type="button"
+              className="fm-item"
+              onClick={() => openPanel(m.panel)}
+            >
+              <span className="fm-icon" aria-hidden="true">
+                {m.icon}
+              </span>
+              <span className="fm-label">{m.label}</span>
+              {m.panel === 'seedbag' && bagCount > 0 && <span className="fm-badge">{bagCount}</span>}
+            </button>
+          ))}
+        </nav>
+      )}
 
       {/* HUD */}
       <div
@@ -379,6 +390,14 @@ export default function GardenView() {
               {activePanel === 'tones' && <TonesPage />}
               {activePanel === 'easel' && <EaselPage />}
               {activePanel === 'sky' && <SkyPanel />}
+              {activePanel === 'seedbag' && (
+                <SeedBagPanel
+                  onArrange={() => {
+                    closePanel()
+                    if (!isEditMode) toggleEditMode()
+                  }}
+                />
+              )}
             </div>
           </div>
           <button type="button" className="panel-close" onClick={closePanel} aria-label="Close panel">

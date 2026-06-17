@@ -98,7 +98,7 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
           if (r.granted && r.bloom) {
             useToastStore
               .getState()
-              .push(`🌱 You earned a ${r.bloom.display_name} seed — it'll bloom in your garden tomorrow`)
+              .push(`🌱 You earned a ${r.bloom.display_name} seed — it's waiting in your Seed Bag`)
           }
         } finally {
           tonesGateBusy = false
