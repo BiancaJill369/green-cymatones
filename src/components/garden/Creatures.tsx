@@ -1,9 +1,9 @@
 import type { TimeOfDay } from '../../hooks/useTimeOfDay'
 
-// Day only: butterflies across sky/forest + ladybugs over the beds.
+// Daylight phases (dawn/day/noon/dusk): butterflies + ladybugs.
 // (Night fireflies live in the forest band, rendered by GardenView.)
 export default function Creatures({ timeOfDay }: { timeOfDay: TimeOfDay }) {
-  if (timeOfDay !== 'day') return null
+  if (timeOfDay === 'night') return null
 
   return (
     <>

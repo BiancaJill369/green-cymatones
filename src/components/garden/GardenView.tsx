@@ -137,7 +137,9 @@ export default function GardenView() {
   const readOnlyCard = readOnlyEl ? oracleCards.find((c) => c.id === readOnlyEl.card_id) : undefined
 
   return (
-    <div className={`stage${timeOfDay === 'night' ? ' night' : ''}${isEditMode ? ' editing' : ''}`}>
+    <div
+      className={`stage phase-${timeOfDay}${timeOfDay === 'night' ? ' night' : ''}${isEditMode ? ' editing' : ''}`}
+    >
       <SkyBackground timeOfDay={timeOfDay} />
       <SkyStars onSelect={setSelectedStar} />
       <div className="horizon" aria-hidden="true" />

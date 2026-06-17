@@ -25,6 +25,10 @@
 .stage.night .sky {
   background: linear-gradient(180deg, #10183a 0%, #1b2350 55%, #26305f 100%);
 }
+/* sky gradient by local-time phase (day = the base gradient above) */
+.stage.phase-dawn .sky { background: linear-gradient(180deg, #f7b7a3 0%, #f9d6a8 35%, #bcd6ec 100%); }
+.stage.phase-noon .sky { background: linear-gradient(180deg, #5db4ec 0%, #9fd9ec 65%, #d9f0e0 100%); }
+.stage.phase-dusk .sky { background: linear-gradient(180deg, #ff9e7a 0%, #e98aa8 45%, #7b6fb0 100%); }
 .stage .star {
   position: absolute;
   width: 2.5px;
@@ -38,6 +42,9 @@
   opacity: 0.85;
   animation: gdTwinkle 3s ease-in-out infinite;
 }
+/* stars fade in toward night: hidden day/noon, faint dawn, rising dusk */
+.stage.phase-dawn .star { opacity: 0.3; }
+.stage.phase-dusk .star { opacity: 0.55; }
 @keyframes gdTwinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.9; } }
 
 /* sun / moon — positioned by arc logic (inline left/top) */
@@ -319,10 +326,12 @@
   right: 0;
   height: 54%; /* the sky band */
   z-index: 2; /* above sky gradient, below forest/creatures */
-  opacity: 0.4; /* faint by day */
+  opacity: 0; /* hidden at day/noon */
   transition: opacity 0.8s ease;
 }
-.stage.night .sky-stars { opacity: 1; } /* luminous at night */
+.stage.phase-dawn .sky-stars { opacity: 0.35; } /* faint at dawn */
+.stage.phase-dusk .sky-stars { opacity: 0.6; } /* rising at dusk */
+.stage.night .sky-stars { opacity: 1; } /* full at night */
 .stage .sky-star {
   position: absolute;
   width: 9px;

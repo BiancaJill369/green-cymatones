@@ -2,29 +2,31 @@ import { useEffect, useState } from 'react'
 import type { TimeOfDay } from '../../hooks/useTimeOfDay'
 import { decimalHour } from '../../hooks/useTimeOfDay'
 
-// Horizontal % across the sky for the current orb (existing arc logic).
-function arcProgress(h: number, timeOfDay: TimeOfDay): number {
-  if (timeOfDay === 'day') return ((h - 6) / 12) * 100 // 6→18
-  const adjusted = h >= 18 ? h - 18 : h + 6 // 18→6 wraps midnight
-  return (adjusted / 12) * 100
+// Sun arcs across the daytime window (05→20); the moon across the night (20→05).
+function sunProgress(h: number): number {
+  return ((h - 5) / 15) * 100
+}
+function moonProgress(h: number): number {
+  const adjusted = h >= 20 ? h - 20 : h + 4 // 20:00 → 05:00 wraps midnight (9h)
+  return (adjusted / 9) * 100
 }
 
 export default function SunMoon({ timeOfDay }: { timeOfDay: TimeOfDay }) {
-  // Re-read the clock each minute so the orb creeps across the sky.
   const [h, setH] = useState(() => decimalHour())
   useEffect(() => {
-    const id = setInterval(() => setH(decimalHour()), 60_000)
+    const id = setInterval(() => setH(decimalHour()), 5 * 60_000)
     return () => clearInterval(id)
   }, [])
 
-  const progress = Math.min(100, Math.max(0, arcProgress(h, timeOfDay)))
+  const isSun = timeOfDay !== 'night'
+  const progress = Math.min(100, Math.max(0, isSun ? sunProgress(h) : moonProgress(h)))
   const left = progress
-  // Parabolic arc within the sky band: high at midday/midnight, low near the horizon.
-  const top = 72 - Math.sin((progress / 100) * Math.PI) * 52
+  // parabolic arc within the sky band: high at midday/midnight, low near the horizon
+  const top = 78 - Math.sin((progress / 100) * Math.PI) * 58
 
   return (
     <div
-      className={timeOfDay === 'day' ? 'sun' : 'moon'}
+      className={isSun ? 'sun' : 'moon'}
       style={{ left: `${left}%`, top: `${top}%` }}
       aria-hidden="true"
     />
