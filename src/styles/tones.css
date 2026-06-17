@@ -33,6 +33,24 @@
 .tones .reward .bar > span { display: block; height: 100%; background: linear-gradient(90deg, #5ce08a, #34d27e); }
 
 .tones .cat { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: #ffd76b; margin-bottom: 6px; text-transform: capitalize; }
+
+/* group drill-down */
+.tone-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.tone-group {
+  display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
+  padding: 16px 16px; border-radius: 14px; cursor: pointer; text-align: left; color: #f4f9f0;
+  border: 1px solid rgba(124, 191, 138, 0.3); background: rgba(255, 255, 255, 0.04);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.tone-group:hover { transform: translateY(-3px); border-color: #5ce08a; }
+.tone-group .tg-name { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; color: #cdeccf; }
+.tone-group .tg-count { font-size: 0.78rem; color: #9bbfa6; }
+.tone-group-back {
+  align-self: flex-start; background: none; border: 1px solid rgba(124, 191, 138, 0.4);
+  color: #cdeccf; border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: 0.85rem;
+}
+.tone-group-back:hover { background: rgba(124, 191, 138, 0.12); }
+@media (prefers-reduced-motion: reduce) { .tone-group { transition: none; } }
 .track-list { display: flex; flex-direction: column; gap: 8px; }
 .track-row {
   display: flex;

@@ -32,6 +32,17 @@ export interface Track {
 
 const TUNING_THRESHOLD = 180 // 3 minutes/day → one tuning mushroom
 
+// The Mushroom shows EXACTLY these 5 groups. Each track's `category` is matched by
+// substring (case/space-insensitive, like violet's normalizeCategory) so we hit the
+// real stored strings without hardcoding their exact casing. Non-matching = hidden.
+const GROUPS: { label: string; match: (c: string) => boolean }[] = [
+  { label: 'Bach Flowers', match: (c) => c.includes('bach') },
+  { label: 'Chakra Colors', match: (c) => c.includes('chakra') || c.includes('color') || c.includes('colour') },
+  { label: 'Emotions', match: (c) => c.includes('emotion') },
+  { label: 'Immune System', match: (c) => c.includes('immune') || c.includes('detox') },
+  { label: 'Aura', match: (c) => c.includes('aura') },
+]
+
 interface FrequencyState {
   tracksByCategory: Record<string, Track[]>
   currentTrack: Track | null
@@ -147,10 +158,15 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
         console.error('loadTracks error', error)
         return
       }
+      const tracks = (data ?? []) as Track[]
+      const used = new Set<string>()
       const grouped: Record<string, Track[]> = {}
-      for (const t of (data ?? []) as Track[]) {
-        const cat = t.category || 'Other'
-        ;(grouped[cat] ??= []).push(t)
+      for (const g of GROUPS) {
+        const inGroup = tracks.filter(
+          (t) => !used.has(t.id) && g.match((t.category || '').toLowerCase()),
+        )
+        inGroup.forEach((t) => used.add(t.id))
+        if (inGroup.length) grouped[g.label] = inGroup
       }
       set({ tracksByCategory: grouped })
     },

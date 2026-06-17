@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import '../styles/tones.css'
 import { useAuth } from '../hooks/useAuth'
@@ -19,6 +19,8 @@ export default function TonesPage() {
   const loadListening = useFrequencyStore((s) => s.loadListening)
   const playTrack = useFrequencyStore((s) => s.playTrack)
 
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
+
   useEffect(() => {
     void loadTracks()
   }, [loadTracks])
@@ -35,11 +37,12 @@ export default function TonesPage() {
     if (user?.id) playTrack(t, user.id)
   }
   const pct = Math.min(100, (todaySeconds / TUNING_THRESHOLD) * 100)
+  const groupTracks = selectedGroup ? tracksByCategory[selectedGroup] : null
 
   return (
     <div className="tones">
       <div className="wrap">
-        <h1>Frequency Tones</h1>
+        <h1>Frequency Mushroom</h1>
 
         {!tuningEarned && (
           <div className="reward">
@@ -55,17 +58,23 @@ export default function TonesPage() {
 
         {categories.length === 0 ? (
           <p style={{ textAlign: 'center', color: '#9bbfa6' }}>Loading tones…</p>
+        ) : groupTracks ? (
+          <>
+            <button type="button" className="tone-group-back" onClick={() => setSelectedGroup(null)}>
+              ← All groups
+            </button>
+            <h2 className="cat">{selectedGroup}</h2>
+            <TrackList tracks={groupTracks} currentId={currentTrack?.id ?? null} onPlay={onPlay} />
+          </>
         ) : (
-          categories.map((cat) => (
-            <section key={cat}>
-              <h2 className="cat">{cat}</h2>
-              <TrackList
-                tracks={tracksByCategory[cat]}
-                currentId={currentTrack?.id ?? null}
-                onPlay={onPlay}
-              />
-            </section>
-          ))
+          <div className="tone-groups">
+            {categories.map((g) => (
+              <button key={g} type="button" className="tone-group" onClick={() => setSelectedGroup(g)}>
+                <span className="tg-name">{g}</span>
+                <span className="tg-count">{tracksByCategory[g].length} tones</span>
+              </button>
+            ))}
+          </div>
         )}
 
         <Link to="/garden" className="back-link">
