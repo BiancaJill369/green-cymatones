@@ -16,19 +16,27 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let active = true
 
+    // Membership is only "known" once BOTH the subscription fetch and the
+    // profile have fully resolved. isLoading stays true the whole time, and
+    // the finally guarantees it always flips to false (never stuck on Loading).
     const loadGreenContext = async (user: User) => {
-      const sub = await fetchGreenSubscription(user.id)
-      let profile: GreenProfile | null = null
-      if (hasActiveGreen(sub)) {
-        profile = await ensureGreenProfile(user.id, user.email)
+      try {
+        const sub = await fetchGreenSubscription(user.id)
+        let profile: GreenProfile | null = null
+        if (hasActiveGreen(sub)) {
+          profile = await ensureGreenProfile(user.id, user.email)
+        }
+        if (!active) return
+        setGreenContext({
+          greenSubscription: sub,
+          greenProfile: profile,
+          isAdmin: profile?.is_admin === true,
+        })
+      } catch (err) {
+        console.error('loadGreenContext error', err)
+      } finally {
+        if (active) setLoading(false)
       }
-      if (!active) return
-      setGreenContext({
-        greenSubscription: sub,
-        greenProfile: profile,
-        isAdmin: profile?.is_admin === true,
-      })
-      setLoading(false)
     }
 
     // onAuthStateChange fires INITIAL_SESSION on subscribe, so this also
@@ -38,8 +46,10 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!active) return
       if (session?.user) {
-        setSession(session)
+        // session detected → stay loading until loadGreenContext finishes.
+        // Do NOT clear isLoading here; only loadGreenContext's finally does.
         setLoading(true)
+        setSession(session)
         void loadGreenContext(session.user)
       } else {
         reset()

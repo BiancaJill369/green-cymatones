@@ -3,21 +3,20 @@ import { useNavigate } from 'react-router-dom'
 import EmailEntryForm from '../components/auth/EmailEntryForm'
 import CodeEntryForm from '../components/auth/CodeEntryForm'
 import { useAuth } from '../hooks/useAuth'
-import { hasActiveGreen } from '../lib/greenSubscription'
 
 export default function AuthPage() {
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [email, setEmail] = useState('')
-  const { session, greenSubscription, isLoading } = useAuth()
+  const { session } = useAuth()
   const navigate = useNavigate()
 
-  // Gate-route once a session is established and green context has loaded.
+  // Once a session exists (after verifyOtp), just leave the auth page.
+  // Do NOT decide membership here — that would race loadGreenContext and can
+  // bounce an active member to /subscribe. Home + AuthGuard make the call once
+  // membership has loaded (isLoading === false).
   useEffect(() => {
-    if (isLoading || !session) return
-    navigate(hasActiveGreen(greenSubscription) ? '/garden' : '/subscribe', {
-      replace: true,
-    })
-  }, [session, greenSubscription, isLoading, navigate])
+    if (session) navigate('/', { replace: true })
+  }, [session, navigate])
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center gap-8 bg-night-sky px-6 text-moon">

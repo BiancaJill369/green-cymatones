@@ -20,7 +20,9 @@ export interface GreenSubscription {
   updated_at: string
 }
 
-// One subscription row per user (UNIQUE(user_id)). Returns null if none exists.
+// Reads the caller's own subscription row (UNIQUE(user_id)).
+// Returns null only when there is genuinely no row; a Supabase/RLS error is
+// logged loudly so an errored read is never silently mistaken for "no membership".
 export async function fetchGreenSubscription(
   userId: string,
 ): Promise<GreenSubscription | null> {
@@ -31,7 +33,9 @@ export async function fetchGreenSubscription(
     .maybeSingle()
 
   if (error) {
-    console.error('fetchGreenSubscription error', error)
+    // Do NOT swallow this — an RLS/transient failure here must be visible,
+    // not treated as a definitive "not a member".
+    console.error('[green] fetchGreenSubscription failed (read error, not "no membership"):', error)
     return null
   }
   return (data as GreenSubscription | null) ?? null
