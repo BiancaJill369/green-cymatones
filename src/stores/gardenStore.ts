@@ -98,6 +98,12 @@ interface GardenState {
   dirty: Set<string>
 
   loadGarden: (userId: string) => Promise<void>
+  plantSeedling: (args: {
+    renderKey: string
+    category: string
+    species: string
+    plantedAt: string
+  }) => Promise<GardenElement | null>
   toggleEditMode: () => void
   selectElement: (id: string | null) => void
   updateElementLocal: (id: string, patch: ElementPatch) => void
@@ -146,6 +152,51 @@ export const useGardenStore = create<GardenState>((set, get) => ({
       console.error('loadGarden error', err)
       set({ isLoaded: true, userId })
     }
+  },
+
+  // Plant a granted seed. category routes it to the right bed; render_key/species
+  // ride in metadata so GardenElement can draw the species (Chunk 16).
+  plantSeedling: async ({ renderKey, category, species, plantedAt }) => {
+    const userId = get().userId
+    if (!userId) return null
+    const bedType: BedType =
+      category === 'tree' ? 'forest_floor' : category === 'herb' ? 'herb_garden' : 'wild_meadow'
+    const elementType = category === 'tree' ? 'tree' : category === 'herb' ? 'plant' : 'flower'
+
+    let bed = get().beds.find((b) => b.bed_type === bedType)
+    if (!bed) {
+      const { data } = await supabase
+        .from('green_garden_beds')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('bed_type', bedType)
+        .single()
+      bed = (data as GardenBed | null) ?? undefined
+    }
+    if (!bed) return null
+
+    const { data, error } = await supabase
+      .from('green_garden_elements')
+      .insert({
+        user_id: userId,
+        bed_id: bed.id,
+        element_type: elementType,
+        seed_source: 'manual',
+        position_x: 12 + Math.random() * 76,
+        position_y: 14 + Math.random() * 64,
+        growth_stage: 0,
+        growth_started_at: plantedAt,
+        metadata: { render_key: renderKey, category, species },
+      })
+      .select('*')
+      .single()
+    if (error) {
+      console.error('plantSeedling error', error)
+      return null
+    }
+    const el = data as GardenElement
+    set((s) => ({ elements: [...s.elements, el] }))
+    return el
   },
 
   toggleEditMode: () => set((s) => ({ isEditMode: !s.isEditMode, selectedId: null })),

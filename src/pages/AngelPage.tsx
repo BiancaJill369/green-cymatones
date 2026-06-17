@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import '../styles/angel.css'
 import { useAuth } from '../hooks/useAuth'
 import { useAngelStore } from '../stores/angelStore'
+import { useSeedStore } from '../stores/seedStore'
+import { useToastStore } from '../stores/toastStore'
 import AngelKeypad from '../components/oracle/AngelKeypad'
 import AngelReadingView from '../components/oracle/AngelReading'
 
@@ -11,6 +13,8 @@ export default function AngelPage() {
   const currentReading = useAngelStore((s) => s.currentReading)
   const getReading = useAngelStore((s) => s.getReading)
   const recordDraw = useAngelStore((s) => s.recordDraw)
+  const grantSeed = useSeedStore((s) => s.grantSeed)
+  const pushToast = useToastStore((s) => s.push)
 
   const [busy, setBusy] = useState(false)
 
@@ -18,7 +22,13 @@ export default function AngelPage() {
   const handleReveal = async (n: number) => {
     setBusy(true)
     const reading = await getReading(n)
-    if (reading && user?.id) await recordDraw(user.id, n)
+    if (reading && user?.id) {
+      await recordDraw(user.id, n)
+      const g = await grantSeed({ userId: user.id, activityType: 'angel', sourceKey: 'angel' })
+      if (g.granted && g.bloom) {
+        pushToast(`🌱 You earned a ${g.bloom.display_name} seed — it'll bloom in your garden tomorrow`)
+      }
+    }
     setBusy(false)
   }
 

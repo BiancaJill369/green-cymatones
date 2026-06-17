@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { Howl } from 'howler'
 import { supabase } from '../lib/supabaseClient'
 import { useToastStore } from './toastStore'
+import { useSeedStore } from './seedStore'
 
 // audio_url is either an absolute URL or a path in the shared CT private
 // "audio-tracks" Storage bucket (resolved exactly like violet.cymatones — a 1-hour
@@ -30,7 +31,7 @@ export interface Track {
   metadata: Record<string, unknown> | null
 }
 
-const TUNING_THRESHOLD = 180 // 3 minutes/day → one tuning mushroom
+const TONES_THRESHOLD = 420 // 7 minutes/day → one Resonance Willow seed (Chunk 16)
 
 // The Mushroom shows EXACTLY these 5 groups. Each track's `category` is matched by
 // substring (case/space-insensitive, like violet's normalizeCategory) so we hit the
@@ -49,7 +50,6 @@ interface FrequencyState {
   isPlaying: boolean
   positionSec: number
   todaySeconds: number
-  tuningEarned: boolean
   loadTracks: () => Promise<void>
   loadListening: (userId: string) => Promise<void>
   playTrack: (track: Track, userId: string) => void
@@ -61,9 +61,11 @@ interface FrequencyState {
 let sound: Howl | null = null
 let pollId: ReturnType<typeof setInterval> | null = null
 let pending = 0
+let tonesGateBusy = false // guards against a double-grant while the upsert is in flight
 
 export const useFrequencyStore = create<FrequencyState>((set, get) => {
-  // flush accrued real-playing seconds to green_listening_daily; award a mushroom at the threshold
+  // flush accrued real-playing seconds to green_listening_daily(user_id, listen_date, seconds);
+  // once today crosses 7 minutes, grant one Resonance Willow seed (capped by the seed economy).
   const accrue = async (userId: string) => {
     if (pending <= 0) return
     const delta = pending
@@ -72,49 +74,36 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
     const row = (
       await supabase
         .from('green_listening_daily')
-        .select('*')
+        .select('seconds')
         .eq('user_id', userId)
         .eq('listen_date', today)
         .maybeSingle()
     ).data
-    const prevTotal = (row?.total_seconds as number) || 0
-    const wasEarned = !!row?.tuning_seed_earned
+    const prevTotal = (row?.seconds as number) || 0
     const newTotal = prevTotal + delta
-    const award = !wasEarned && newTotal >= TUNING_THRESHOLD
 
     await supabase.from('green_listening_daily').upsert(
-      {
-        user_id: userId,
-        listen_date: today,
-        total_seconds: newTotal,
-        tuning_seed_earned: wasEarned || award,
-        updated_at: new Date().toISOString(),
-      },
+      { user_id: userId, listen_date: today, seconds: newTotal },
       { onConflict: 'user_id,listen_date' },
     )
-    set({ todaySeconds: newTotal, tuningEarned: wasEarned || award })
+    set({ todaySeconds: newTotal })
 
-    if (award) {
-      const bed = (
-        await supabase
-          .from('green_garden_beds')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('bed_type', 'forest_floor')
-          .single()
-      ).data
-      if (bed) {
-        await supabase.from('green_garden_elements').insert({
-          user_id: userId,
-          bed_id: bed.id,
-          element_type: 'mushroom',
-          seed_source: 'tuning_seed',
-          position_x: 10 + Math.random() * 80,
-          position_y: 15 + Math.random() * 65,
-          growth_stage: 0,
-        })
+    // 7-minute gate → grantSeed('tones'). DB UNIQUE + todayGrants keep it to once/day.
+    if (newTotal >= TONES_THRESHOLD && !tonesGateBusy) {
+      const seed = useSeedStore.getState()
+      if (!seed.todayGrants.includes('tones')) {
+        tonesGateBusy = true
+        try {
+          const r = await seed.grantSeed({ userId, activityType: 'tones', sourceKey: 'tones' })
+          if (r.granted && r.bloom) {
+            useToastStore
+              .getState()
+              .push(`🌱 You earned a ${r.bloom.display_name} seed — it'll bloom in your garden tomorrow`)
+          }
+        } finally {
+          tonesGateBusy = false
+        }
       }
-      useToastStore.getState().push('🍄 A tuning mushroom sprouted in your Forest Floor')
     }
   }
 
@@ -145,7 +134,6 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
     isPlaying: false,
     positionSec: 0,
     todaySeconds: 0,
-    tuningEarned: false,
 
     loadTracks: async () => {
       const { data, error } = await supabase
@@ -175,14 +163,11 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
       const today = new Date().toISOString().slice(0, 10)
       const { data } = await supabase
         .from('green_listening_daily')
-        .select('*')
+        .select('seconds')
         .eq('user_id', userId)
         .eq('listen_date', today)
         .maybeSingle()
-      set({
-        todaySeconds: (data?.total_seconds as number) || 0,
-        tuningEarned: !!data?.tuning_seed_earned,
-      })
+      set({ todaySeconds: (data?.seconds as number) || 0 })
     },
 
     playTrack: async (track, userId) => {

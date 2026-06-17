@@ -42,6 +42,7 @@ export interface DrawResult {
   card: OracleCard | undefined
   isNew: boolean
   bedName?: string
+  bedType?: BedType
 }
 
 const BED_LABELS: Record<BedType, string> = {
@@ -100,12 +101,14 @@ export const useOracleStore = create<OracleState>((set, get) => ({
     set({ todayDraws: (data ?? []) as DailyDraw[] })
   },
 
-  // One draw per deck per day. Records a draw AND drops a seed into the matching bed.
+  // One draw per deck per day. Records the draw; the seed is granted by the caller
+  // through the Chunk 16 economy (grantSeed), which enforces the per-day cap.
   drawCard: async (deckId, userId) => {
     const { decks, cards } = get()
     const deck = decks.find((d) => d.id === deckId)
     if (!deck) return { card: undefined, isNew: false }
     const bedName = BED_LABELS[deck.bed_type]
+    const bedType = deck.bed_type
     const today = new Date().toISOString().slice(0, 10)
 
     // 1. already drawn this deck today?
@@ -117,7 +120,7 @@ export const useOracleStore = create<OracleState>((set, get) => ({
       .eq('draw_date', today)
       .maybeSingle()
     if (existing.data) {
-      return { card: cards.find((c) => c.id === existing.data.card_id), isNew: false, bedName }
+      return { card: cards.find((c) => c.id === existing.data.card_id), isNew: false, bedName, bedType }
     }
 
     // 2. pick a card, avoiding this deck's last 5 draws
@@ -133,7 +136,7 @@ export const useOracleStore = create<OracleState>((set, get) => ({
     const pool = deckCards.filter((c) => !recent.includes(c.id))
     const source = pool.length ? pool : deckCards
     const card = source[Math.floor(Math.random() * source.length)]
-    if (!card) return { card: undefined, isNew: false, bedName }
+    if (!card) return { card: undefined, isNew: false, bedName, bedType }
 
     // 3. record the draw
     const inserted = await supabase
@@ -141,26 +144,6 @@ export const useOracleStore = create<OracleState>((set, get) => ({
       .insert({ user_id: userId, deck_id: deckId, card_id: card.id })
       .select('*')
       .single()
-
-    // 4. drop a seed into the matching bed
-    const bed = await supabase
-      .from('green_garden_beds')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('bed_type', deck.bed_type)
-      .single()
-    if (bed.data) {
-      await supabase.from('green_garden_elements').insert({
-        user_id: userId,
-        bed_id: bed.data.id,
-        element_type: 'seed',
-        seed_source: 'oracle_draw',
-        card_id: card.id,
-        position_x: 10 + Math.random() * 80,
-        position_y: 15 + Math.random() * 65,
-        growth_stage: 0,
-      })
-    }
 
     // reflect the new draw in local state
     if (inserted.data) {
@@ -172,6 +155,6 @@ export const useOracleStore = create<OracleState>((set, get) => ({
       }))
     }
 
-    return { card, isNew: true, bedName }
+    return { card, isNew: true, bedName, bedType }
   },
 }))

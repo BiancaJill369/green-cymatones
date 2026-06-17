@@ -86,28 +86,8 @@ export const useJournalStore = create<JournalState>((set, get) => ({
       .from('green_journal_entries')
       .insert({ user_id: userId, prompt_id: promptId, mood, content })
 
-    // first entry of the day plants a journal seed in the Wild Meadow
-    if (isFirst) {
-      const bed = (
-        await supabase
-          .from('green_garden_beds')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('bed_type', 'wild_meadow')
-          .single()
-      ).data
-      if (bed) {
-        await supabase.from('green_garden_elements').insert({
-          user_id: userId,
-          bed_id: bed.id,
-          element_type: 'journal_book',
-          seed_source: 'journal_entry',
-          position_x: 10 + Math.random() * 80,
-          position_y: 15 + Math.random() * 65,
-          growth_stage: 0,
-        })
-      }
-    }
+    // the journal bloom (Lavender) is granted by the caller via the Chunk 16
+    // seed economy, which enforces the once-per-day cap.
 
     await get().loadEntries(userId)
     return { isFirst }

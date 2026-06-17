@@ -4,20 +4,22 @@ import '../styles/tones.css'
 import { useAuth } from '../hooks/useAuth'
 import { useFrequencyStore } from '../stores/frequencyStore'
 import type { Track } from '../stores/frequencyStore'
+import { useSeedStore } from '../stores/seedStore'
 import TrackList from '../components/tones/TrackList'
 import TonePlayer from '../components/tones/TonePlayer'
 
-const TUNING_THRESHOLD = 180
+const TONES_THRESHOLD = 420 // 7 minutes/day
 
 export default function TonesPage() {
   const { user } = useAuth()
   const tracksByCategory = useFrequencyStore((s) => s.tracksByCategory)
   const currentTrack = useFrequencyStore((s) => s.currentTrack)
   const todaySeconds = useFrequencyStore((s) => s.todaySeconds)
-  const tuningEarned = useFrequencyStore((s) => s.tuningEarned)
   const loadTracks = useFrequencyStore((s) => s.loadTracks)
   const loadListening = useFrequencyStore((s) => s.loadListening)
   const playTrack = useFrequencyStore((s) => s.playTrack)
+  const tonesEarned = useSeedStore((s) => s.todayGrants.includes('tones'))
+  const loadTodayGrants = useSeedStore((s) => s.loadTodayGrants)
 
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
 
@@ -25,8 +27,11 @@ export default function TonesPage() {
     void loadTracks()
   }, [loadTracks])
   useEffect(() => {
-    if (user?.id) void loadListening(user.id)
-  }, [user?.id, loadListening])
+    if (user?.id) {
+      void loadListening(user.id)
+      void loadTodayGrants(user.id)
+    }
+  }, [user?.id, loadListening, loadTodayGrants])
   // NOTE: audio is intentionally NOT stopped when this panel closes — the single
   // global Howler instance (frequencyStore) keeps playing across panels. The
   // garden MiniPlayer controls stop/pause. Listening still flushes on pause/stop/
@@ -36,7 +41,7 @@ export default function TonesPage() {
   const onPlay = (t: Track) => {
     if (user?.id) playTrack(t, user.id)
   }
-  const pct = Math.min(100, (todaySeconds / TUNING_THRESHOLD) * 100)
+  const pct = Math.min(100, (todaySeconds / TONES_THRESHOLD) * 100)
   const groupTracks = selectedGroup ? tracksByCategory[selectedGroup] : null
 
   return (
@@ -44,14 +49,16 @@ export default function TonesPage() {
       <div className="wrap">
         <h1>Frequency Mushroom</h1>
 
-        {!tuningEarned && (
+        {tonesEarned ? (
+          <div className="reward">🌳 You earned today's Resonance Willow seed — back tomorrow</div>
+        ) : (
           <div className="reward">
-            Listen 3 minutes today to grow a tuning mushroom
+            Listen 7 minutes today to earn a Resonance Willow seed
             <div className="bar">
               <span style={{ width: `${pct}%` }} />
             </div>
             <div style={{ fontSize: '0.78rem', marginTop: 4 }}>
-              {Math.min(todaySeconds, TUNING_THRESHOLD)} / {TUNING_THRESHOLD}s
+              {Math.min(todaySeconds, TONES_THRESHOLD)} / {TONES_THRESHOLD}s
             </div>
           </div>
         )}

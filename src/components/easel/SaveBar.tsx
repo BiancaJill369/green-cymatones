@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { RefObject } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useArtStore } from '../../stores/artStore'
+import { useSeedStore } from '../../stores/seedStore'
 import { useToastStore } from '../../stores/toastStore'
 import type { GameHandle } from './gameTypes'
 
@@ -14,6 +15,7 @@ interface Props {
 export default function SaveBar({ gameType, gameRef, onSaved }: Props) {
   const { user } = useAuth()
   const saveCreation = useArtStore((s) => s.saveCreation)
+  const grantSeed = useSeedStore((s) => s.grantSeed)
   const pushToast = useToastStore((s) => s.push)
   const [title, setTitle] = useState('')
   const [saving, setSaving] = useState(false)
@@ -41,9 +43,14 @@ export default function SaveBar({ gameType, gameRef, onSaved }: Props) {
     const state = gameRef.current.getState()
 
     await saveCreation({ userId: user.id, gameType, title: title.trim() || 'Untitled', thumbnail, state })
+    const g = await grantSeed({ userId: user.id, activityType: 'art', sourceKey: 'art' })
     setSaving(false)
     setTitle('')
-    pushToast('🎨 Saved to your gallery')
+    if (g.granted && g.bloom) {
+      pushToast(`🌱 Saved! You earned a ${g.bloom.display_name} seed — it'll bloom tomorrow`)
+    } else {
+      pushToast('🎨 Saved to your gallery')
+    }
     onSaved?.()
   }
 

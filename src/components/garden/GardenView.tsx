@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { useGardenStore } from '../../stores/gardenStore'
 import type { BedType, GardenElement as El } from '../../stores/gardenStore'
 import { useOracleStore } from '../../stores/oracleStore'
+import { useSeedStore } from '../../stores/seedStore'
 import { useSkyStore } from '../../stores/skyStore'
 import type { SkyStar } from '../../stores/skyStore'
 import SkyBackground from './SkyBackground'
@@ -57,6 +58,8 @@ export default function GardenView() {
   const oracleLoaded = useOracleStore((s) => s.isLoaded)
   const loadDecks = useOracleStore((s) => s.loadDecks)
   const loadStars = useSkyStore((s) => s.loadStars)
+  const loadLegend = useSeedStore((s) => s.loadLegend)
+  const loadTodayGrants = useSeedStore((s) => s.loadTodayGrants)
 
   const [readOnlyEl, setReadOnlyEl] = useState<El | null>(null)
   const [selectedStar, setSelectedStar] = useState<SkyStar | null>(null)
@@ -77,8 +80,10 @@ export default function GardenView() {
     if (user?.id) {
       void loadGarden(user.id)
       void loadStars(user.id)
+      void loadLegend()
+      void loadTodayGrants(user.id)
     }
-  }, [user?.id, loadGarden, loadStars])
+  }, [user?.id, loadGarden, loadStars, loadLegend, loadTodayGrants])
 
   useEffect(() => {
     if (!oracleLoaded) void loadDecks()

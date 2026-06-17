@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import '../styles/journal.css'
 import { useAuth } from '../hooks/useAuth'
 import { useJournalStore } from '../stores/journalStore'
+import { useSeedStore } from '../stores/seedStore'
 import { useToastStore } from '../stores/toastStore'
 import MoodPicker from '../components/journal/MoodPicker'
 
@@ -13,6 +14,7 @@ export default function JournalPage() {
   const loadPrompts = useJournalStore((s) => s.loadPrompts)
   const loadEntries = useJournalStore((s) => s.loadEntries)
   const saveEntry = useJournalStore((s) => s.saveEntry)
+  const grantSeed = useSeedStore((s) => s.grantSeed)
   const pushToast = useToastStore((s) => s.push)
 
   const [mood, setMood] = useState('')
@@ -40,14 +42,19 @@ export default function JournalPage() {
   const handleSave = async () => {
     if (!user?.id || !canSave) return
     setSaving(true)
-    const { isFirst } = await saveEntry({
+    await saveEntry({
       userId: user.id,
       promptId: todaysPrompt?.id ?? null,
       mood,
       content: content.trim(),
     })
+    const g = await grantSeed({ userId: user.id, activityType: 'journal', sourceKey: 'journal' })
     setSaving(false)
-    if (isFirst) pushToast('🌱📖 A journal seed was planted in your Wild Meadow')
+    if (g.granted && g.bloom) {
+      pushToast(`🌱 You earned a ${g.bloom.display_name} seed — it'll bloom in your garden tomorrow`)
+    } else {
+      pushToast('Entry saved 🌿 — you already received today’s journal bloom')
+    }
     setContent('')
     setMood('')
     if (taRef.current) taRef.current.style.height = 'auto'

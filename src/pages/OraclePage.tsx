@@ -4,9 +4,19 @@ import '../styles/oracle.css'
 import { useAuth } from '../hooks/useAuth'
 import { useOracleStore } from '../stores/oracleStore'
 import type { DrawResult } from '../stores/oracleStore'
+import type { BedType } from '../stores/gardenStore'
+import { useSeedStore } from '../stores/seedStore'
+import { useToastStore } from '../stores/toastStore'
 import DeckSelector from '../components/oracle/DeckSelector'
 import type { DrawnEntry } from '../components/oracle/DeckSelector'
 import CardDraw from '../components/oracle/CardDraw'
+
+// each oracle deck grants its own bloom (one per deck per day)
+const ORACLE_SOURCE: Record<BedType, string> = {
+  herb_garden: 'oracle_herb',
+  forest_floor: 'oracle_forest',
+  wild_meadow: 'oracle_wildmeadow',
+}
 
 export default function OraclePage() {
   const { user } = useAuth()
@@ -17,6 +27,9 @@ export default function OraclePage() {
   const loadDecks = useOracleStore((s) => s.loadDecks)
   const loadTodayDraws = useOracleStore((s) => s.loadTodayDraws)
   const drawCard = useOracleStore((s) => s.drawCard)
+  const grantSeed = useSeedStore((s) => s.grantSeed)
+  const loadTodayGrants = useSeedStore((s) => s.loadTodayGrants)
+  const pushToast = useToastStore((s) => s.push)
 
   const [activeDeckId, setActiveDeckId] = useState<string | null>(null)
   const [result, setResult] = useState<DrawResult | null>(null)
@@ -27,8 +40,11 @@ export default function OraclePage() {
   }, [isLoaded, loadDecks])
 
   useEffect(() => {
-    if (user?.id) void loadTodayDraws(user.id)
-  }, [user?.id, loadTodayDraws])
+    if (user?.id) {
+      void loadTodayDraws(user.id)
+      void loadTodayGrants(user.id)
+    }
+  }, [user?.id, loadTodayDraws, loadTodayGrants])
 
   const drawnByDeck = useMemo(() => {
     const map = new Map<string, DrawnEntry>()
@@ -48,6 +64,15 @@ export default function OraclePage() {
     const r = await drawCard(deckId, user.id)
     setBusy(false)
     setResult(r)
+
+    // grant the deck's bloom seed (capped one per deck per day)
+    if (r.isNew && r.bedType) {
+      const sourceKey = ORACLE_SOURCE[r.bedType]
+      const g = await grantSeed({ userId: user.id, activityType: sourceKey, sourceKey })
+      if (g.granted && g.bloom) {
+        pushToast(`🌱 You earned a ${g.bloom.display_name} seed — it'll bloom in your garden tomorrow`)
+      }
+    }
   }
 
   const handleBack = () => {
