@@ -1,5 +1,13 @@
 # green.cymatones.com — Handoff
 
+## 2026-06-10 — Fix: auth gate race ✅ DONE
+- Active members (e.g. bruehlig@gmail.com) were bounced to /subscribe on login. Cause: AuthPage decided membership itself, racing `loadGreenContext` (greenSubscription still null). Fixes: AuthProvider keeps `isLoading` true from session-detect until membership fully resolves (try/finally); AuthPage no longer gates — it navigates to `/` and lets home + AuthGuard decide once `isLoading===false`; `fetchGreenSubscription` logs read errors loudly (never silently "not a member"). Verified by driving the store: active+loading → "Loading…" not /subscribe; loaded+active → garden; post-verify → `/` not /subscribe. Commit `a2c5900`.
+
+## 2026-06-10 — CHUNK 13b: Art Easel games 3 & 4 ✅ DONE (code)
+- `MandalaBloom` (`mandala_bloom`) — symmetry control 6/8/12-fold (default 8), palette, brush S/M/L, Clear; pointer-drag strokes are replicated rotationally + mirrored for a kaleidoscope (additive glow on dark bg). `ZenGarden` (`zen_rake`) — warm sand + grain; rake of 3/5/7 teeth draws perpendicular grooves (darker line + lighter highlight) along drags; "Place stones" mode taps a soft gray stone; "Smooth sand" resets. Both reuse `SaveBar` via `renderToCanvas` (copies the live canvas) + `getState`.
+- `EaselPage` flips mandala_bloom + zen_rake tiles to playable; petal_drop + watercolor_meadow stay "Coming soon" (13c). `touch-action:none` on canvases; reduced-motion fine (no idle animation).
+- **Verified in browser** (temp route, removed before commit): hub shows 4 playable + 2 coming-soon; one mandala stroke lit ~17.5k px (kaleidoscope replication); zen rake produced ~2.5k groove px + a gray stone on tap. (Screenshots flaky on these canvas pages, so verified by pixel sampling.) Build clean.
+
 ## 2026-06-09 — CHUNK 13a: Art Easel (shell + gallery + 2 games) ✅ DONE (code)
 
 - **DB (already live):** `green_art_creations` with RLS. Code only.

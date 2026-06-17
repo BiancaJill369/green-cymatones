@@ -90,6 +90,28 @@
 }
 .mz-cell { border-radius: 2px; background: transparent; }
 
+/* canvas games (mandala / zen) */
+.art-game { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.art-canvas {
+  width: min(86vw, 360px);
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  touch-action: none;
+  cursor: crosshair;
+}
+.easel-controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; max-width: 440px; }
+.ctrl-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(124, 191, 138, 0.35);
+  color: #dcecdf;
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+.ctrl-btn.active { background: linear-gradient(135deg, #5ce08a, #34d27e); color: #06281a; border-color: transparent; font-weight: 600; }
+
 /* save bar */
 .save-bar { display: flex; gap: 10px; width: 100%; max-width: 420px; }
 .save-title {

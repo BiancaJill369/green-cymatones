@@ -6,16 +6,18 @@ import { useArtStore } from '../stores/artStore'
 import type { GameHandle } from '../components/easel/gameTypes'
 import GardenColoring from '../components/easel/games/GardenColoring'
 import PixelMosaic from '../components/easel/games/PixelMosaic'
+import MandalaBloom from '../components/easel/games/MandalaBloom'
+import ZenGarden from '../components/easel/games/ZenGarden'
 import SaveBar from '../components/easel/SaveBar'
 import Gallery from '../components/easel/Gallery'
 
-type LiveGame = 'garden_coloring' | 'pixel_mosaic'
+type LiveGame = 'garden_coloring' | 'pixel_mosaic' | 'mandala_bloom' | 'zen_rake'
 
 const GAMES = [
   { type: 'garden_coloring', label: 'Garden Coloring', emoji: '🌼', desc: 'Fill a line-art garden', live: true },
   { type: 'pixel_mosaic', label: 'Pixel Mosaic', emoji: '🔲', desc: 'Paint a stained-glass grid', live: true },
-  { type: 'mandala_bloom', label: 'Mandala Bloom', emoji: '🌀', desc: 'Mirrored mandala strokes', live: false },
-  { type: 'zen_rake', label: 'Zen Garden', emoji: '🏯', desc: 'Rake flowing sand', live: false },
+  { type: 'mandala_bloom', label: 'Mandala Bloom', emoji: '🌀', desc: 'Mirrored mandala strokes', live: true },
+  { type: 'zen_rake', label: 'Zen Garden', emoji: '🏯', desc: 'Rake flowing sand', live: true },
   { type: 'petal_drop', label: 'Petal Drop', emoji: '🌸', desc: 'Stamp flower petals', live: false },
   { type: 'watercolor_meadow', label: 'Watercolor Meadow', emoji: '🖌️', desc: 'Soft blending brush', live: false },
 ] as const
@@ -43,8 +45,12 @@ export default function EaselPage() {
         </div>
         {active === 'garden_coloring' ? (
           <GardenColoring ref={gameRef} />
-        ) : (
+        ) : active === 'pixel_mosaic' ? (
           <PixelMosaic ref={gameRef} />
+        ) : active === 'mandala_bloom' ? (
+          <MandalaBloom ref={gameRef} />
+        ) : (
+          <ZenGarden ref={gameRef} />
         )}
         <SaveBar
           gameType={active}
