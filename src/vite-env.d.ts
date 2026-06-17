@@ -6,7 +6,6 @@ interface ImportMetaEnv {
   readonly VITE_STRIPE_PUBLISHABLE_KEY: string
   readonly VITE_APP_URL: string
   readonly VITE_CYMATONES_API_URL: string
-  readonly VITE_TRACKS_AUDIO_BASE: string
 }
 
 interface ImportMeta {

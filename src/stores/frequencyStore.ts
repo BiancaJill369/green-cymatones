@@ -3,14 +3,18 @@ import { Howl } from 'howler'
 import { supabase } from '../lib/supabaseClient'
 import { useToastStore } from './toastStore'
 
-// audio_url is a relative path (e.g. 'ct_originals/sympathetic.mp3') served off a
-// Shopify/Cloudflare-Workers base (NOT Supabase Storage). The base is configured via
-// VITE_TRACKS_AUDIO_BASE (.env / Vercel) — same base the CymaTones app uses.
-const BASE = import.meta.env.VITE_TRACKS_AUDIO_BASE ?? ''
-
-function resolveAudio(path: string): string {
+// audio_url is either an absolute URL or a path in the shared CT private
+// "audio-tracks" Storage bucket (resolved exactly like violet.cymatones — a 1-hour
+// signed URL from the existing Supabase client; getPublicUrl 403s on a private bucket).
+// Needs only VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY — no separate audio-base env var.
+async function resolveAudio(path: string): Promise<string> {
   if (/^https?:\/\//.test(path)) return path // already absolute
-  return BASE.replace(/\/$/, '') + '/' + path.replace(/^\//, '')
+  const { data, error } = await supabase.storage.from('audio-tracks').createSignedUrl(path, 3600)
+  if (error) {
+    console.error('resolveAudio createSignedUrl failed for', path, error)
+    return ''
+  }
+  return data?.signedUrl ?? ''
 }
 
 export interface Track {
@@ -165,7 +169,7 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
       })
     },
 
-    playTrack: (track, userId) => {
+    playTrack: async (track, userId) => {
       void accrue(userId) // flush whatever was accrued on the previous track
       stopPolling()
       if (sound) {
@@ -173,15 +177,20 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
         sound.unload()
         sound = null
       }
+      set({ currentTrack: track, isPlaying: true, positionSec: 0 })
+      const src = await resolveAudio(track.audio_url)
+      if (!src) {
+        set({ isPlaying: false })
+        return
+      }
       sound = new Howl({
-        src: [resolveAudio(track.audio_url)],
+        src: [src],
         html5: true,
         onend: () => {
           void get().stopPlayback(userId)
         },
       })
       sound.play()
-      set({ currentTrack: track, isPlaying: true, positionSec: 0 })
       startPolling(userId)
     },
 
