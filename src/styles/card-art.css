@@ -1,0 +1,15 @@
+/* Generative oracle card art animations (from oracle_card_art_proto.html).
+   Scoped under .card-art so .plant/.bloom/.twinkle never clash elsewhere. */
+.card-art { display: block; width: 100%; height: auto; }
+.card-art .plant { transform-origin: 50% 100%; animation: caSway 6s ease-in-out infinite; }
+@keyframes caSway { 0%, 100% { transform: rotate(-1.6deg); } 50% { transform: rotate(1.6deg); } }
+.card-art .twinkle { animation: caTw 3s ease-in-out infinite; }
+@keyframes caTw { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+.card-art .bloom { animation: caBloom 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes caBloom { 0% { transform: scale(0.2); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .card-art .plant,
+  .card-art .twinkle,
+  .card-art .bloom { animation: none; }
+}

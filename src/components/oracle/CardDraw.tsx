@@ -1,14 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { DrawResult } from '../../stores/oracleStore'
+import type { DeckKind } from './DeckArt'
+import CardArt from './CardArt'
 
 interface Props {
   result: DrawResult
   deckName: string
+  kind: DeckKind
   onBack: () => void
 }
 
-export default function CardDraw({ result, deckName, onBack }: Props) {
+export default function CardDraw({ result, deckName, kind, onBack }: Props) {
   const { card, isNew, bedName } = result
   const [flipped, setFlipped] = useState(false)
 
@@ -52,6 +55,11 @@ export default function CardDraw({ result, deckName, onBack }: Props) {
             </span>
           </div>
           <div className="flip-face flip-back">
+            {flipped && (
+              <span className="card-art-wrap">
+                <CardArt kind={kind} title={card.name} size={150} />
+              </span>
+            )}
             <span className="card-num">No. {card.card_number}</span>
             <span className="card-name">{card.name}</span>
             <span className="card-visual">{card.visual_description}</span>

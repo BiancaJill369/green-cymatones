@@ -87,6 +87,17 @@
 }
 .come-back { margin-top: 22px; color: #bcd9c4; font-style: italic; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; }
 
+/* generative card art placements */
+.card-art-wrap { display: block; width: 150px; margin: 0 auto 6px; }
+.deck-card-art {
+  display: block;
+  width: 52px;
+  margin: 6px auto 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
 /* flip card */
 .flip { perspective: 1200px; width: min(86vw, 320px); height: min(122vw, 446px); margin-top: 8px; }
 .flip-inner {

@@ -1,5 +1,6 @@
 import type { OracleDeck, OracleCard, DailyDraw } from '../../stores/oracleStore'
 import DeckArt, { DeckFlourishes, deckKind } from './DeckArt'
+import CardArt from './CardArt'
 
 export interface DrawnEntry {
   draw: DailyDraw
@@ -33,6 +34,11 @@ export default function DeckSelector({ decks, drawnByDeck, onSelect }: Props) {
               <div className="deck-name">{deck.name}</div>
               {drawn ? (
                 <>
+                  {drawn.card && (
+                    <span className="deck-card-art">
+                      <CardArt kind={deckKind(deck)} title={drawn.card.name} size={52} />
+                    </span>
+                  )}
                   <div className="deck-card-name">{drawn.card?.name ?? 'Your card'}</div>
                   <span className="deck-pill">DRAWN TODAY</span>
                 </>

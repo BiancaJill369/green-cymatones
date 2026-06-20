@@ -10,6 +10,7 @@ import { useToastStore } from '../stores/toastStore'
 import DeckSelector from '../components/oracle/DeckSelector'
 import type { DrawnEntry } from '../components/oracle/DeckSelector'
 import CardDraw from '../components/oracle/CardDraw'
+import { deckKind } from '../components/oracle/DeckArt'
 
 // each oracle deck grants its own bloom (one per deck per day)
 const ORACLE_SOURCE: Record<BedType, string> = {
@@ -82,7 +83,14 @@ export default function OraclePage() {
 
   // Draw-in-progress / result takeover view.
   if (activeDeckId && result) {
-    return <CardDraw result={result} deckName={activeDeck?.name ?? 'Oracle'} onBack={handleBack} />
+    return (
+      <CardDraw
+        result={result}
+        deckName={activeDeck?.name ?? 'Oracle'}
+        kind={activeDeck ? deckKind(activeDeck) : 'flower'}
+        onBack={handleBack}
+      />
+    )
   }
 
   return (
