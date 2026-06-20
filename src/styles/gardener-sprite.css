@@ -1,0 +1,71 @@
+/* The created gardener as an ambient roaming character (reuses the cat's
+   left-transition wander engine). Behaviors drive a class on .gd-body. */
+.gardener-sprite {
+  position: absolute;
+  bottom: 21%;
+  z-index: 7;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.gardener-sprite.reduced { transition: none !important; }
+.gd-flip { transform-origin: center bottom; }
+.gd-body {
+  display: block;
+  width: 72px;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.4));
+  transform-origin: center bottom;
+}
+.gd-body svg { display: block; width: 100%; height: auto; }
+
+/* walking — gentle bob */
+.gd-wander { animation: gdBob 1.1s ease-in-out infinite; }
+@keyframes gdBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+/* idle — breathe, with an occasional stretch */
+.gd-idle { animation: gdBreathe 3.6s ease-in-out infinite; }
+@keyframes gdBreathe {
+  0%, 88%, 100% { transform: scaleY(1); }
+  44% { transform: scaleY(1.03); }
+  92% { transform: scaleY(1.06) translateY(-3px); } /* tiny stretch */
+}
+
+/* tend a plant — crouch down */
+.gd-tend { animation: gdTend 2.4s ease-in-out infinite; }
+@keyframes gdTend {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(7px) scaleY(0.9); }
+}
+
+/* moon-gaze — lean back and look up */
+.gd-gaze { animation: gdGaze 4s ease-in-out infinite; transform-origin: center bottom; }
+@keyframes gdGaze {
+  0%, 100% { transform: rotate(0deg); }
+  40%, 70% { transform: rotate(-9deg); }
+}
+
+/* greet the cat — lean forward */
+.gd-greet { animation: gdGreet 1.6s ease-in-out infinite; }
+@keyframes gdGreet {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(6deg) translateY(2px); }
+}
+
+/* floating gesture emoji */
+.gd-gesture {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 4px;
+  font-size: 1.1rem;
+  animation: gdFloat 2.6s ease-in-out infinite;
+}
+@keyframes gdFloat {
+  0%, 100% { transform: translate(-50%, 0); opacity: 0.55; }
+  50% { transform: translate(-50%, -6px); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gardener-sprite { transition: none; }
+  .gd-body, .gd-gesture { animation: none !important; }
+}

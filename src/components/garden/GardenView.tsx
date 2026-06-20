@@ -18,6 +18,7 @@ import GardenElement from './GardenElement'
 import GardenForeground from './GardenForeground'
 import Creatures from './Creatures'
 import Shadowmoss from './Shadowmoss'
+import GardenerSprite from './GardenerSprite'
 import Toasts from '../common/Toasts'
 import MirrorCreator from '../character/MirrorCreator'
 import Gardener from '../character/Gardener'
@@ -225,6 +226,7 @@ export default function GardenView() {
       <Creatures timeOfDay={timeOfDay} />
 
       <Shadowmoss />
+      <GardenerSprite />
 
       {/* ONE feature menu — all launchers together in a dock above the beds */}
       {!isEditMode && (

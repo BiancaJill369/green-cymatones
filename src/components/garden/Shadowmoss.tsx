@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useShadowmossStore } from '../../stores/shadowmossStore'
+import { useCompanionsStore } from '../../stores/companionsStore'
 
 /* Shadowmoss sprite + animations lifted from shadowmoss_cat_mock.html.
    Facing-flip lives on .sm-flip and bob/breathe on .sm-cat so both apply
@@ -90,6 +91,7 @@ export default function Shadowmoss() {
       setFacing(target >= xRef.current ? 1 : -1)
       xRef.current = target
       setX(target)
+      useCompanionsStore.getState().setCatX(target) // publish for the gardener
       after(6200, sit) // matches the 6s left transition
     }
 
