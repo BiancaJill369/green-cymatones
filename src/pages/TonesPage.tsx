@@ -7,6 +7,7 @@ import type { Track } from '../stores/frequencyStore'
 import { useSeedStore } from '../stores/seedStore'
 import TrackList from '../components/tones/TrackList'
 import TonePlayer from '../components/tones/TonePlayer'
+import TrackInfo from '../components/tones/TrackInfo'
 
 const TONES_THRESHOLD = 420 // 7 minutes/day
 
@@ -22,6 +23,8 @@ export default function TonesPage() {
   const loadTodayGrants = useSeedStore((s) => s.loadTodayGrants)
 
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
+  const [infoTrack, setInfoTrack] = useState<Track | null>(null)
+  const [infoMode, setInfoMode] = useState<'description' | 'details'>('description')
 
   useEffect(() => {
     void loadTracks()
@@ -40,6 +43,16 @@ export default function TonesPage() {
   const categories = Object.keys(tracksByCategory)
   const onPlay = (t: Track) => {
     if (user?.id) playTrack(t, user.id)
+  }
+  const onDescribe = (t: Track) => {
+    setInfoMode('description')
+    setInfoTrack(t)
+  }
+  const openDetails = () => {
+    if (currentTrack) {
+      setInfoMode('details')
+      setInfoTrack(currentTrack)
+    }
   }
   const pct = Math.min(100, (todaySeconds / TONES_THRESHOLD) * 100)
   const groupTracks = selectedGroup ? tracksByCategory[selectedGroup] : null
@@ -71,7 +84,12 @@ export default function TonesPage() {
               ← All groups
             </button>
             <h2 className="cat">{selectedGroup}</h2>
-            <TrackList tracks={groupTracks} currentId={currentTrack?.id ?? null} onPlay={onPlay} />
+            <TrackList
+              tracks={groupTracks}
+              currentId={currentTrack?.id ?? null}
+              onPlay={onPlay}
+              onDescribe={onDescribe}
+            />
           </>
         ) : (
           <div className="tone-groups">
@@ -89,7 +107,23 @@ export default function TonesPage() {
         </Link>
       </div>
 
-      <TonePlayer />
+      <TonePlayer onDetails={openDetails} />
+
+      {infoTrack && (
+        <TrackInfo
+          track={infoTrack}
+          mode={infoMode}
+          onClose={() => setInfoTrack(null)}
+          onPlay={
+            infoMode === 'description'
+              ? () => {
+                  onPlay(infoTrack)
+                  setInfoTrack(null)
+                }
+              : undefined
+          }
+        />
+      )}
     </div>
   )
 }

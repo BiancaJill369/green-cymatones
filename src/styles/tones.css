@@ -52,6 +52,7 @@
 .tone-group-back:hover { background: rgba(124, 191, 138, 0.12); }
 @media (prefers-reduced-motion: reduce) { .tone-group { transition: none; } }
 .track-list { display: flex; flex-direction: column; gap: 8px; }
+.track-row-wrap { display: flex; align-items: stretch; gap: 8px; }
 .track-row {
   display: flex;
   align-items: center;
@@ -64,10 +65,22 @@
   transition: background 0.15s ease, border-color 0.15s ease;
   text-align: left;
   color: inherit;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 .track-row:hover { background: rgba(124, 191, 138, 0.12); }
-.track-row.active { border-color: #5ce08a; background: rgba(92, 224, 138, 0.12); }
+.track-row-wrap.active .track-row { border-color: #5ce08a; background: rgba(92, 224, 138, 0.12); }
+.tr-describe {
+  flex-shrink: 0;
+  width: 44px;
+  border: 1px solid rgba(124, 191, 138, 0.25);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #aef0a0;
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+.tr-describe:hover { background: rgba(124, 191, 138, 0.12); }
 .track-row .tr-main { flex: 1; min-width: 0; }
 .track-row .tr-name { font-weight: 600; }
 .track-row .tr-tag { font-size: 0.82rem; color: #9bbfa6; margin-top: 2px; }
@@ -95,6 +108,17 @@
 }
 .tone-player .tp-name { font-weight: 600; }
 .tone-player .tp-notes { font-size: 0.82rem; color: #9bbfa6; }
+.tone-player .tp-details {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid rgba(124, 191, 138, 0.45);
+  color: #cdeccf;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.tone-player .tp-details:hover { background: rgba(124, 191, 138, 0.12); }
 .tone-player .progress { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); overflow: hidden; flex: 1; }
 .tone-player .progress > span { display: block; height: 100%; background: linear-gradient(90deg, #5ce08a, #34d27e); }
 .tone-player .time { font-size: 0.72rem; color: #9bbfa6; min-width: 86px; text-align: right; }
@@ -103,3 +127,43 @@
 .tones .back-link:hover { color: #f4f9f0; }
 
 @media (prefers-reduced-motion: reduce) { .track-row { transition: none; } }
+
+/* track info sheet — Description (TCM) + Details, ported from violet */
+.ti-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(3, 16, 10, 0.62);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.ti-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  max-height: 86vh;
+  overflow: auto;
+  background: linear-gradient(180deg, #0c3a25, #061d14);
+  border: 1px solid rgba(124, 191, 138, 0.3);
+  border-radius: 20px 20px 0 0;
+  padding: 26px 20px 28px;
+  color: #f4f9f0;
+}
+@media (min-width: 768px) {
+  .ti-scrim { align-items: center; padding: 24px; }
+  .ti-sheet { border-radius: 20px; }
+}
+.ti-close { position: absolute; top: 12px; right: 14px; width: 34px; height: 34px; border-radius: 50%; border: none; background: rgba(6, 29, 20, 0.85); color: #f4f9f0; font-size: 1.2rem; cursor: pointer; }
+.ti-eyebrow { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #9bbfa6; }
+.ti-name { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; color: #cdeccf; margin-top: 2px; }
+.ti-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.ti-body { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+.ti-empty { color: #9bbfa6; font-style: italic; }
+.ti-sec-eyebrow { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7fae86; }
+.ti-sec-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: #ffd76b; margin: 2px 0 4px; }
+.ti-sec-body { font-size: 0.92rem; line-height: 1.55; color: #d7e9d6; }
+.ti-chips { list-style: none; padding: 0; margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.ti-chip { font-size: 0.74rem; border: 1px solid rgba(124, 191, 138, 0.35); border-radius: 999px; padding: 4px 10px; color: #aef0a0; }
+.ti-play { margin-top: 18px; width: 100%; background: linear-gradient(135deg, #5ce08a, #34d27e); color: #06281a; border: none; border-radius: 999px; padding: 12px; font-weight: 700; cursor: pointer; }

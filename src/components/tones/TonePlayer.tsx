@@ -7,7 +7,7 @@ function mmss(sec: number | null): string {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
-export default function TonePlayer() {
+export default function TonePlayer({ onDetails }: { onDetails?: () => void }) {
   const { user } = useAuth()
   const track = useFrequencyStore((s) => s.currentTrack)
   const isPlaying = useFrequencyStore((s) => s.isPlaying)
@@ -36,6 +36,11 @@ export default function TonePlayer() {
             <div className="tp-name">{track.name}</div>
             {tag && <div className="tp-notes">{tag}</div>}
           </div>
+          {onDetails && (
+            <button type="button" className="tp-details" onClick={onDetails}>
+              Details
+            </button>
+          )}
         </div>
         <div className="row">
           <div className="progress">
