@@ -3,6 +3,7 @@ import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabaseClient'
 import type { GreenSubscription } from '../lib/greenSubscription'
 import type { GreenProfile } from '../lib/greenProfile'
+import type { GardenerAvatar } from '../lib/gardenerOptions'
 
 export type GreenCharacterType =
   | 'moss_sprite'
@@ -30,6 +31,7 @@ interface UserState extends GreenContext {
     characterType: GreenCharacterType,
     characterName: string,
   ) => Promise<void>
+  updateAvatar: (userId: string, avatar: GardenerAvatar, characterName: string) => Promise<void>
   reset: () => void
 }
 
@@ -65,6 +67,22 @@ export const useUserStore = create<UserState>((set) => ({
               character_name: characterName,
             },
           }
+        : {},
+    )
+  },
+  // Gardener avatar (green_profiles.avatar JSONB) + character_name, set via the Mirror.
+  updateAvatar: async (userId, avatar, characterName) => {
+    await supabase
+      .from('green_profiles')
+      .update({
+        avatar,
+        character_name: characterName,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId)
+    set((s) =>
+      s.greenProfile
+        ? { greenProfile: { ...s.greenProfile, avatar, character_name: characterName } }
         : {},
     )
   },

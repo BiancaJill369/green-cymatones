@@ -1,11 +1,13 @@
 import { supabase } from './supabaseClient'
 import type { GreenCharacterType } from '../stores/userStore'
+import type { GardenerAvatar } from './gardenerOptions'
 
 export interface GreenProfile {
   id: string
   email: string
   display_name: string | null
   avatar_url: string | null
+  avatar: GardenerAvatar | null
   character_type: GreenCharacterType | null
   character_name: string | null
   is_admin: boolean

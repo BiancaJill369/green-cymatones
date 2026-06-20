@@ -1,0 +1,44 @@
+/* Member Dashboard — in-garden analytics panel. */
+.dashboard {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0c2c1d, #06180f);
+  color: #eaf3ea;
+  padding: 26px 18px 60px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.dashboard .wrap { max-width: 620px; margin: 0 auto; }
+.dash-head { display: flex; align-items: center; gap: 14px; }
+.dash-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: radial-gradient(70% 70% at 50% 35%, rgba(124, 191, 138, 0.25), transparent 70%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.dash-avatar svg { width: 64px; height: auto; }
+.dash-head h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: #d7efc8; line-height: 1.1; }
+.dash-since { color: #9bbfa6; font-size: 0.85rem; margin-top: 2px; }
+
+.dash-grid {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (max-width: 480px) { .dash-grid { grid-template-columns: repeat(2, 1fr); } }
+.dash-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(124, 191, 138, 0.22);
+  text-align: center;
+}
+.dash-value { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 600; color: #7ee0a4; line-height: 1; }
+.dash-label { font-size: 0.74rem; color: #9bbfa6; letter-spacing: 0.02em; }

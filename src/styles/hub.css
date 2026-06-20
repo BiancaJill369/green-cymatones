@@ -60,6 +60,20 @@
   text-align: center;
 }
 
+/* ---- top-left gardener identity (opens Dashboard) ---- */
+.hud-gardener {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(124, 191, 138, 0.25);
+  flex-shrink: 0;
+  align-items: flex-start;
+  justify-content: center;
+}
+.hud-gardener svg { width: 28px; height: auto; }
+
 /* ---- Seed Bag panel ---- */
 .seed-bag {
   min-height: 100vh;

@@ -18,28 +18,32 @@ import GardenElement from './GardenElement'
 import Creatures from './Creatures'
 import Shadowmoss from './Shadowmoss'
 import Toasts from '../common/Toasts'
-import CharacterCreator, { CHARACTERS } from '../character/CharacterCreator'
+import MirrorCreator from '../character/MirrorCreator'
+import Gardener from '../character/Gardener'
 import MiniPlayer from './MiniPlayer'
 import SkyPanel from './SkyPanel'
 import SeedBagPanel from './SeedBagPanel'
+import DashboardPanel from './DashboardPanel'
 import OraclePage from '../../pages/OraclePage'
 import AngelPage from '../../pages/AngelPage'
 import JournalPage from '../../pages/JournalPage'
 import TonesPage from '../../pages/TonesPage'
 import EaselPage from '../../pages/EaselPage'
 
-const PANELS = ['oracle', 'angel', 'journal', 'tones', 'easel', 'sky', 'seedbag'] as const
+const PANELS = ['oracle', 'angel', 'journal', 'tones', 'easel', 'sky', 'seedbag', 'dashboard'] as const
 type Panel = (typeof PANELS)[number]
 
 // All feature launchers live together in ONE menu dock above the beds.
-const MENU: { panel: Panel; icon: string; label: string }[] = [
-  { panel: 'oracle', icon: '🃏', label: 'Oracle' },
-  { panel: 'angel', icon: '🔢', label: 'Angel Numbers' },
-  { panel: 'tones', icon: '🍄', label: 'Frequencies' },
-  { panel: 'journal', icon: '📖', label: 'Journal' },
-  { panel: 'seedbag', icon: '🌱', label: 'Seed Bag' },
-  { panel: 'easel', icon: '🎨', label: 'Art Easel' },
-  { panel: 'sky', icon: '✨', label: 'Sky of Stars' },
+// 'mirror' is a modal (the gardener creator), not a ?panel overlay.
+const MENU: { key: Panel | 'mirror'; icon: string; label: string }[] = [
+  { key: 'oracle', icon: '🃏', label: 'Oracle' },
+  { key: 'angel', icon: '🔢', label: 'Angel Numbers' },
+  { key: 'tones', icon: '🍄', label: 'Frequencies' },
+  { key: 'journal', icon: '📖', label: 'Journal' },
+  { key: 'seedbag', icon: '🌱', label: 'Seed Bag' },
+  { key: 'easel', icon: '🎨', label: 'Art Easel' },
+  { key: 'mirror', icon: '🪞', label: 'Mirror' },
+  { key: 'sky', icon: '✨', label: 'Sky of Stars' },
 ]
 
 export default function GardenView() {
@@ -68,7 +72,7 @@ export default function GardenView() {
 
   const [readOnlyEl, setReadOnlyEl] = useState<El | null>(null)
   const [selectedStar, setSelectedStar] = useState<SkyStar | null>(null)
-  const [showCreator, setShowCreator] = useState(false)
+  const [showMirror, setShowMirror] = useState(false)
 
   // Which feature panel is open is driven by the URL (?panel=…), so the pages'
   // existing "Back to garden" links (→ /garden) close the panel for free, and
@@ -120,11 +124,9 @@ export default function GardenView() {
     [],
   )
 
-  const name = greenProfile?.display_name || user?.email || 'friend'
-  const charDef = greenProfile?.character_type
-    ? CHARACTERS.find((c) => c.type === greenProfile.character_type) ?? null
-    : null
-  const needsCharacter = !!greenProfile && !greenProfile.character_type
+  const name = greenProfile?.character_name || greenProfile?.display_name || user?.email || 'friend'
+  // first visit (no gardener avatar yet) forces the Mirror creator; edit anytime after
+  const needsAvatar = !!greenProfile && !greenProfile.avatar
 
   const handleSignOut = async () => {
     await signOut()
@@ -225,16 +227,16 @@ export default function GardenView() {
         <nav className="feature-menu" aria-label="Garden features">
           {MENU.map((m) => (
             <button
-              key={m.panel}
+              key={m.key}
               type="button"
               className="fm-item"
-              onClick={() => openPanel(m.panel)}
+              onClick={() => (m.key === 'mirror' ? setShowMirror(true) : openPanel(m.key))}
             >
               <span className="fm-icon" aria-hidden="true">
                 {m.icon}
               </span>
               <span className="fm-label">{m.label}</span>
-              {m.panel === 'seedbag' && bagCount > 0 && <span className="fm-badge">{bagCount}</span>}
+              {m.key === 'seedbag' && bagCount > 0 && <span className="fm-badge">{bagCount}</span>}
             </button>
           ))}
         </nav>
@@ -249,19 +251,18 @@ export default function GardenView() {
           <span className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur">
             Tap a plant to arrange it
           </span>
-        ) : charDef ? (
+        ) : (
           <button
             type="button"
-            onClick={() => setShowCreator(true)}
-            title="Change character"
-            className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur transition hover:bg-night-sky/70"
+            onClick={() => openPanel('dashboard')}
+            title="Open your dashboard"
+            className="flex items-center gap-2 rounded-full bg-night-sky/40 py-1 pl-1 pr-3 text-moon backdrop-blur transition hover:bg-night-sky/70"
           >
-            {charDef.emoji} {greenProfile?.character_name} the {charDef.label}
+            <span className="hud-gardener" aria-hidden="true">
+              <Gardener avatar={greenProfile?.avatar} size={28} ariaLabel="" />
+            </span>
+            {name}
           </button>
-        ) : (
-          <span className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur">
-            Welcome, {name}
-          </span>
         )}
         {!isEditMode && (
           <div className="flex items-center gap-2">
@@ -374,9 +375,9 @@ export default function GardenView() {
         </div>
       )}
 
-      {/* Character Creator — first-entry (forced) or "Change character" (dismissable) */}
-      {(needsCharacter || showCreator) && (
-        <CharacterCreator onClose={() => setShowCreator(false)} dismissable={!needsCharacter} />
+      {/* Gardener Mirror — first-entry (forced) or "Mirror" menu item (dismissable) */}
+      {(needsAvatar || showMirror) && (
+        <MirrorCreator onClose={() => setShowMirror(false)} dismissable={!needsAvatar} />
       )}
 
       {/* feature panels over the (still-mounted) garden */}
@@ -398,6 +399,7 @@ export default function GardenView() {
                   }}
                 />
               )}
+              {activePanel === 'dashboard' && <DashboardPanel />}
             </div>
           </div>
           <button type="button" className="panel-close" onClick={closePanel} aria-label="Close panel">
