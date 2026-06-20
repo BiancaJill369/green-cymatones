@@ -167,9 +167,13 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
         console.error('[mushroom] loadTracks Supabase ERROR:', error.message, error)
         return
       }
-      const rows = (data ?? []) as (Track & { is_active?: boolean })[]
-      // keep active rows when the column exists; otherwise keep all (don't over-filter)
-      const tracks = rows.filter((t) => t.is_active !== false)
+      const rows = (data ?? []) as (Track & { is_active?: boolean; category_text?: string | null })[]
+      // keep active rows when the column exists; otherwise keep all (don't over-filter).
+      // The shared `tracks` table stores the group in `category_text` (the same
+      // column violet reads) — normalise it onto `category` for the rest of the app.
+      const tracks = rows
+        .filter((t) => t.is_active !== false)
+        .map((t) => ({ ...t, category: (t.category_text ?? t.category ?? '') as string }))
 
       // DEBUG: surface exactly what came back so a category mismatch / RLS / empty
       // table is obvious from the console.

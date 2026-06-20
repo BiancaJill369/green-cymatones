@@ -17,7 +17,7 @@
 --   green_seed_grants(user_id)                  -- blooms earned
 --   green_sky_stars(user_id)                    -- stars saved
 --   green_track_listening(user_id, track_id text, listen_date, seconds, plays)
---   tracks(id, name, category)                  -- shared CymaTones catalogue
+--   tracks(id, name, category_text)             -- shared CymaTones catalogue
 --   green_is_admin() -> boolean
 -- ============================================================
 
@@ -102,13 +102,13 @@ BEGIN
   SELECT
     t.track_id,
     ft.name,
-    ft.category,
+    ft.category_text,
     floor(sum(t.seconds) / 60.0)::bigint,
     COALESCE(sum(t.plays), 0)::bigint
   FROM green_track_listening t
   LEFT JOIN tracks ft ON ft.id::text = t.track_id
   WHERE t.listen_date >= (now() - (days || ' days')::interval)::date
-  GROUP BY t.track_id, ft.name, ft.category
+  GROUP BY t.track_id, ft.name, ft.category_text
   ORDER BY sum(t.seconds) DESC NULLS LAST
   LIMIT 10;
 END $$;
