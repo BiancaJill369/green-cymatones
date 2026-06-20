@@ -156,25 +156,48 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
     todaySeconds: 0,
 
     loadTracks: async () => {
+      // select('*') so a renamed/absent column (slug/is_active/metadata) can't
+      // error the whole query; we don't filter on audio_url, so tracks whose
+      // audio can't resolve still appear (audio resolves lazily at play time).
       const { data, error } = await supabase
         .from('frequency_tracks')
-        .select('id,slug,name,category,hz,audio_url,duration_seconds,related_chakra,notes,metadata')
-        .eq('is_active', true)
-        .order('category')
+        .select('*')
         .order('name')
       if (error) {
-        console.error('loadTracks error', error)
+        console.error('[mushroom] loadTracks Supabase ERROR:', error.message, error)
         return
       }
-      const tracks = (data ?? []) as Track[]
+      const rows = (data ?? []) as (Track & { is_active?: boolean })[]
+      // keep active rows when the column exists; otherwise keep all (don't over-filter)
+      const tracks = rows.filter((t) => t.is_active !== false)
+
+      // DEBUG: surface exactly what came back so a category mismatch / RLS / empty
+      // table is obvious from the console.
+      const cats = [...new Set(tracks.map((t) => t.category ?? '(null)'))]
+      if (tracks.length === 0) {
+        console.warn(
+          `[mushroom] frequency_tracks returned ${rows.length} rows, 0 usable. If rows exist in the DB but this is empty, the SELECT policy likely doesn’t grant "authenticated" — add a public-read RLS policy.`,
+        )
+      } else {
+        console.log(`[mushroom] loaded ${tracks.length} tracks; distinct categories:`, cats)
+      }
+
       const used = new Set<string>()
       const grouped: Record<string, Track[]> = {}
+      // 1) the five named groups, matched by substring on category
       for (const g of GROUPS) {
         const inGroup = tracks.filter(
           (t) => !used.has(t.id) && g.match((t.category || '').toLowerCase()),
         )
         inGroup.forEach((t) => used.add(t.id))
         if (inGroup.length) grouped[g.label] = inGroup
+      }
+      // 2) fallback: anything that didn't match still shows under its real
+      // category, so the Mushroom never sits empty when rows exist.
+      for (const t of tracks) {
+        if (used.has(t.id)) continue
+        const label = (t.category ?? '').trim() || 'Other Frequencies'
+        ;(grouped[label] ||= []).push(t)
       }
       set({ tracksByCategory: grouped })
     },
