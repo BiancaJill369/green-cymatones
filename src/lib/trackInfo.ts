@@ -4,7 +4,7 @@ import type { Track } from '../stores/frequencyStore'
  * The layered TCM/Western description for a frequency track, mirroring the
  * shape violet.cymatones reads (description_layered: lead / tcm / western /
  * tcm_root_cause / related_ailments). green reads the SAME shared
- * frequency_tracks table, so we pull the layered fields out of metadata
+ * CymaTones `tracks` table, so we pull the layered fields out of metadata
  * (either metadata.description_layered or flat on metadata), falling back to
  * the plain `notes` column for the lead.
  */

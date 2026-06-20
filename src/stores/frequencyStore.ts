@@ -160,7 +160,7 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
       // error the whole query; we don't filter on audio_url, so tracks whose
       // audio can't resolve still appear (audio resolves lazily at play time).
       const { data, error } = await supabase
-        .from('frequency_tracks')
+        .from('tracks') // shared CymaTones catalogue (public.tracks)
         .select('*')
         .order('name')
       if (error) {
@@ -176,7 +176,7 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
       const cats = [...new Set(tracks.map((t) => t.category ?? '(null)'))]
       if (tracks.length === 0) {
         console.warn(
-          `[mushroom] frequency_tracks returned ${rows.length} rows, 0 usable. If rows exist in the DB but this is empty, the SELECT policy likely doesn’t grant "authenticated" — add a public-read RLS policy.`,
+          `[mushroom] tracks returned ${rows.length} rows, 0 usable. If rows exist in the DB but this is empty, the SELECT policy likely doesn’t grant "authenticated" — add a public-read RLS policy.`,
         )
       } else {
         console.log(`[mushroom] loaded ${tracks.length} tracks; distinct categories:`, cats)
