@@ -1,0 +1,68 @@
+/* Realistic garden foreground — grass tufts, flowers, critters
+   (from garden_foreground_mock.html). Replaces the old cross grass. */
+.gf-plants,
+.gf-critters {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42%;
+  pointer-events: none;
+  z-index: 8;
+  overflow: hidden;
+}
+.gf-critters { height: 60%; z-index: 9; }
+
+.gf-tuft,
+.gf-flower {
+  position: absolute;
+  transform-origin: 50% 100%;
+}
+.gf-tuft { animation: gfSway 4s ease-in-out infinite; }
+.gf-flower { animation: gfBob 3.6s ease-in-out infinite; }
+@keyframes gfSway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+@keyframes gfBob { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-3px) rotate(3deg); } }
+
+.gf-bee,
+.gf-butterfly { position: absolute; left: 0; will-change: transform; }
+.gf-wing { transform-origin: center; animation: gfFlap 0.18s linear infinite; }
+@keyframes gfFlap { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.45); } }
+.gf-bwing { transform-origin: center; animation: gfBflap 0.35s ease-in-out infinite; }
+@keyframes gfBflap { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.5); } }
+
+.gf-firefly {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f6ff9e, rgba(246, 255, 158, 0));
+  animation: gfDrift 9s ease-in-out infinite, gfGlow 2.4s ease-in-out infinite;
+}
+@keyframes gfGlow { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+@keyframes gfDrift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(30px, -24px); }
+  50% { transform: translate(-20px, -40px); }
+  75% { transform: translate(18px, -18px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes gfFly {
+  0% { transform: translate(-8vw, 0); }
+  50% { transform: translate(52vw, -40px); }
+  100% { transform: translate(110vw, 10px); }
+}
+@keyframes gfFlit {
+  0% { transform: translate(110vw, 20px); }
+  50% { transform: translate(46vw, -60px); }
+  100% { transform: translate(-10vw, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gf-tuft,
+  .gf-flower,
+  .gf-wing,
+  .gf-bwing,
+  .gf-bee,
+  .gf-butterfly,
+  .gf-firefly { animation: none !important; }
+}

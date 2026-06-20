@@ -15,6 +15,7 @@ import SkyStars from './SkyStars'
 import StarDetailSheet from './StarDetailSheet'
 import GardenBed from './GardenBed'
 import GardenElement from './GardenElement'
+import GardenForeground from './GardenForeground'
 import Creatures from './Creatures'
 import Shadowmoss from './Shadowmoss'
 import Toasts from '../common/Toasts'
@@ -217,6 +218,8 @@ export default function GardenView() {
           onMove={handleMove}
         />
       </div>
+
+      <GardenForeground timeOfDay={timeOfDay} />
 
       <Creatures timeOfDay={timeOfDay} />
 
