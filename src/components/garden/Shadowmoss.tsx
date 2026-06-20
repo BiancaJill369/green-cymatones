@@ -31,9 +31,11 @@ const STYLES = `
 .sm-heart.fav{filter:none;animation:smPop .4s ease}
 @keyframes smPop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
 .sm-save-note{font-size:.72rem;color:#caa23f;font-weight:600}
+.shadowmoss.fig8 .sm-flip{animation:smFig8 2.2s ease-in-out infinite}
+@keyframes smFig8{0%,100%{transform:translateX(0)}25%{transform:translateX(-14px)}75%{transform:translateX(14px)}}
 @media (prefers-reduced-motion:reduce){
   .shadowmoss{transition:none}
-  .sm-cat,.shadowmoss .tail,.shadowmoss .eyelid{animation:none}
+  .sm-cat,.shadowmoss .tail,.shadowmoss .eyelid,.shadowmoss.fig8 .sm-flip{animation:none}
 }
 `
 
@@ -50,10 +52,12 @@ export default function Shadowmoss() {
   const toggleFavorite = useShadowmossStore((s) => s.toggleFavorite)
   const current = useShadowmossStore((s) => s.currentStatement)
 
+  const rendezvous = useCompanionsStore((s) => s.rendezvous)
   const [x, setX] = useState(12)
   const [facing, setFacing] = useState(1)
   const [bubble, setBubble] = useState(false)
   const [sitting, setSitting] = useState(false)
+  const [fig8, setFig8] = useState(false)
   const xRef = useRef(12)
   const reduced = useRef(prefersReducedMotion())
 
@@ -76,6 +80,7 @@ export default function Shadowmoss() {
 
     const sit = () => {
       if (cancelled) return
+      if (useCompanionsStore.getState().rendezvous) return after(1200, sit) // locked
       speak()
       after(4800, () => {
         if (cancelled) return
@@ -85,6 +90,7 @@ export default function Shadowmoss() {
     }
     const move = () => {
       if (cancelled) return
+      if (useCompanionsStore.getState().rendezvous) return after(1200, move) // locked
       setSitting(false)
       setBubble(false)
       const target = 8 + Math.random() * 70
@@ -110,9 +116,37 @@ export default function Shadowmoss() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id])
 
+  // Respond to a shared rendezvous: the gardener initiates, the cat walks to the
+  // meet point and plays its part; on release the cat resumes its own wander.
+  useEffect(() => {
+    if (!rendezvous) {
+      setFig8(false)
+      setSitting(false)
+      setBubble(false)
+      return
+    }
+    const target = Math.max(6, Math.min(92, rendezvous.x + 7))
+    if (!reduced.current) {
+      setFacing(-1) // face the gardener (to our left)
+      xRef.current = target
+      setX(target)
+      useCompanionsStore.getState().setCatX(target)
+    }
+    const arrive = reduced.current ? 0 : 1500
+    const t = setTimeout(() => {
+      if (rendezvous.type === 'iam') speak()
+      else {
+        setSitting(true)
+        if (rendezvous.type === 'figure8') setFig8(true)
+      }
+    }, arrive)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rendezvous])
+
   return (
     <div
-      className={`shadowmoss${reduced.current ? ' reduced' : ''}${sitting ? ' paused' : ''}`}
+      className={`shadowmoss${reduced.current ? ' reduced' : ''}${sitting ? ' paused' : ''}${fig8 ? ' fig8' : ''}`}
       style={{ left: `${x}%` }}
       onClick={() => speak()}
       role="button"
