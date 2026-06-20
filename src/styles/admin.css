@@ -1,0 +1,40 @@
+/* Admin God Mode dashboard — admin-only platform analytics. */
+.admin {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0c2c1d, #06180f);
+  color: #eaf3ea;
+  padding: 26px 18px 60px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.admin .wrap { max-width: 920px; margin: 0 auto; }
+.admin h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: #ffd76b; text-align: center; }
+.admin-sub { text-align: center; color: #9bbfa6; font-size: 0.85rem; margin-top: 2px; }
+.admin-msg { text-align: center; color: #9bbfa6; margin-top: 24px; }
+.admin-err { color: #f3b0a8; }
+.admin-err span { font-size: 0.8rem; color: #9bbfa6; }
+
+.admin-kpis { margin-top: 22px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 640px) { .admin-kpis { grid-template-columns: repeat(2, 1fr); } }
+.admin-kpi { display: flex; flex-direction: column; gap: 3px; padding: 14px 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(124, 191, 138, 0.22); text-align: center; }
+.admin-kpi-val { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; color: #7ee0a4; line-height: 1; }
+.admin-kpi-label { font-size: 0.72rem; color: #9bbfa6; }
+
+.admin-h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: #cdeccf; margin-top: 28px; margin-bottom: 10px; }
+
+.admin-tracks { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; counter-reset: t; }
+.admin-track { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(124, 191, 138, 0.2); }
+.admin-track::before { counter-increment: t; content: counter(t); width: 22px; flex-shrink: 0; color: #ffd76b; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; text-align: center; }
+.at-name { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.at-cat { font-size: 0.74rem; color: #9bbfa6; text-transform: capitalize; }
+.at-stat { font-size: 0.78rem; color: #aef0a0; flex-shrink: 0; }
+
+.admin-sort { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.78rem; color: #9bbfa6; margin-bottom: 8px; }
+.admin-sort-btn { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(124, 191, 138, 0.25); color: #d7e9d6; border-radius: 999px; padding: 4px 11px; font-size: 0.76rem; cursor: pointer; }
+.admin-sort-btn.is-active { border-color: #5ce08a; background: rgba(92, 224, 138, 0.16); color: #f4f9f0; }
+
+.admin-table-wrap { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 640px; }
+.admin-table th, .admin-table td { padding: 8px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid rgba(124, 191, 138, 0.14); }
+.admin-table th { color: #9bbfa6; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.admin-table th:first-child, .admin-table td:first-child { text-align: left; }
+.admin-table .am-name { font-weight: 600; color: #eaf3ea; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }

@@ -61,35 +61,55 @@ interface FrequencyState {
 let sound: Howl | null = null
 let pollId: ReturnType<typeof setInterval> | null = null
 let pending = 0
+let currentTrackId: string | null = null // which track the accruing seconds belong to
 let tonesGateBusy = false // guards against a double-grant while the upsert is in flight
 
+const today10 = () => new Date().toISOString().slice(0, 10)
+
+// sum TODAY's listened seconds across all of this user's per-track rows (Chunk 17)
+async function sumTodaySeconds(userId: string): Promise<number> {
+  const { data } = await supabase
+    .from('green_track_listening')
+    .select('seconds')
+    .eq('user_id', userId)
+    .eq('listen_date', today10())
+  return (data ?? []).reduce(
+    (s: number, r: { seconds: number | null }) => s + (r.seconds ?? 0),
+    0,
+  )
+}
+
 export const useFrequencyStore = create<FrequencyState>((set, get) => {
-  // flush accrued real-playing seconds to green_listening_daily(user_id, listen_date, seconds);
-  // once today crosses 7 minutes, grant one Resonance Willow seed (capped by the seed economy).
+  // flush accrued real-playing seconds to green_track_listening(user_id, track_id, listen_date);
+  // the 7-min gate sums TODAY's seconds across every track row (Chunk 17 retires
+  // green_listening_daily), then grants one Resonance Willow seed (capped by the economy).
   const accrue = async (userId: string) => {
-    if (pending <= 0) return
+    if (pending <= 0 || !currentTrackId) return
     const delta = pending
     pending = 0
-    const today = new Date().toISOString().slice(0, 10)
+    const today = today10()
+    const trackId = currentTrackId
+
     const row = (
       await supabase
-        .from('green_listening_daily')
+        .from('green_track_listening')
         .select('seconds')
         .eq('user_id', userId)
+        .eq('track_id', trackId)
         .eq('listen_date', today)
         .maybeSingle()
     ).data
-    const prevTotal = (row?.seconds as number) || 0
-    const newTotal = prevTotal + delta
-
-    await supabase.from('green_listening_daily').upsert(
-      { user_id: userId, listen_date: today, seconds: newTotal },
-      { onConflict: 'user_id,listen_date' },
+    const newSeconds = ((row?.seconds as number) || 0) + delta
+    await supabase.from('green_track_listening').upsert(
+      { user_id: userId, track_id: trackId, listen_date: today, seconds: newSeconds },
+      { onConflict: 'user_id,track_id,listen_date' },
     )
-    set({ todaySeconds: newTotal })
+
+    const total = await sumTodaySeconds(userId)
+    set({ todaySeconds: total })
 
     // 7-minute gate → grantSeed('tones'). DB UNIQUE + todayGrants keep it to once/day.
-    if (newTotal >= TONES_THRESHOLD && !tonesGateBusy) {
+    if (total >= TONES_THRESHOLD && !tonesGateBusy) {
       const seed = useSeedStore.getState()
       if (!seed.todayGrants.includes('tones')) {
         tonesGateBusy = true
@@ -160,24 +180,33 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
     },
 
     loadListening: async (userId) => {
-      const today = new Date().toISOString().slice(0, 10)
-      const { data } = await supabase
-        .from('green_listening_daily')
-        .select('seconds')
-        .eq('user_id', userId)
-        .eq('listen_date', today)
-        .maybeSingle()
-      set({ todaySeconds: (data?.seconds as number) || 0 })
+      set({ todaySeconds: await sumTodaySeconds(userId) })
     },
 
     playTrack: async (track, userId) => {
-      void accrue(userId) // flush whatever was accrued on the previous track
+      await accrue(userId) // flush whatever was accrued on the previous track (old trackId)
       stopPolling()
       if (sound) {
         sound.stop()
         sound.unload()
         sound = null
       }
+      currentTrackId = track.id
+      // bump play count for this track today (Chunk 17 per-track rollup)
+      const today = today10()
+      const prev = (
+        await supabase
+          .from('green_track_listening')
+          .select('plays')
+          .eq('user_id', userId)
+          .eq('track_id', track.id)
+          .eq('listen_date', today)
+          .maybeSingle()
+      ).data
+      await supabase.from('green_track_listening').upsert(
+        { user_id: userId, track_id: track.id, listen_date: today, plays: ((prev?.plays as number) || 0) + 1 },
+        { onConflict: 'user_id,track_id,listen_date' },
+      )
       set({ currentTrack: track, isPlaying: true, positionSec: 0 })
       const src = await resolveAudio(track.audio_url)
       if (!src) {

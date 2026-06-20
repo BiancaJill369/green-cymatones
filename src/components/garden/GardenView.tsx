@@ -25,13 +25,14 @@ import MiniPlayer from './MiniPlayer'
 import SkyPanel from './SkyPanel'
 import SeedBagPanel from './SeedBagPanel'
 import DashboardPanel from './DashboardPanel'
+import AdminDashboard from './AdminDashboard'
 import OraclePage from '../../pages/OraclePage'
 import AngelPage from '../../pages/AngelPage'
 import JournalPage from '../../pages/JournalPage'
 import TonesPage from '../../pages/TonesPage'
 import EaselPage from '../../pages/EaselPage'
 
-const PANELS = ['oracle', 'angel', 'journal', 'tones', 'easel', 'sky', 'seedbag', 'dashboard'] as const
+const PANELS = ['oracle', 'angel', 'journal', 'tones', 'easel', 'sky', 'seedbag', 'dashboard', 'admin'] as const
 type Panel = (typeof PANELS)[number]
 
 // All feature launchers live together in ONE menu dock above the beds.
@@ -50,7 +51,7 @@ const MENU: { key: Panel | 'mirror'; icon: string; label: string }[] = [
 export default function GardenView() {
   const timeOfDay = useTimeOfDay()
   const navigate = useNavigate()
-  const { user, greenProfile, signOut } = useAuth()
+  const { user, greenProfile, signOut, isAdmin } = useAuth()
   const beds = useGardenStore((s) => s.beds)
   const elements = useGardenStore((s) => s.elements)
   const loadGarden = useGardenStore((s) => s.loadGarden)
@@ -269,6 +270,16 @@ export default function GardenView() {
         )}
         {!isEditMode && (
           <div className="flex items-center gap-2">
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => openPanel('admin')}
+                title="God Mode — platform analytics"
+                className="rounded-full bg-night-sky/40 px-3 py-1 text-moon backdrop-blur transition hover:bg-night-sky/70"
+              >
+                ⚙ Admin
+              </button>
+            )}
             <button
               type="button"
               onClick={toggleEditMode}
@@ -403,6 +414,7 @@ export default function GardenView() {
                 />
               )}
               {activePanel === 'dashboard' && <DashboardPanel />}
+              {activePanel === 'admin' && isAdmin && <AdminDashboard />}
             </div>
           </div>
           <button type="button" className="panel-close" onClick={closePanel} aria-label="Close panel">
