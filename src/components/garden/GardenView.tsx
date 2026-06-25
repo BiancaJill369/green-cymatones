@@ -19,6 +19,7 @@ import GardenBed from './GardenBed'
 import GardenElement from './GardenElement'
 import PlantGrid, { type Cell } from './PlantGrid'
 import GardenForeground from './GardenForeground'
+import MountainRange from './MountainRange'
 import Creatures from './Creatures'
 import Shadowmoss from './Shadowmoss'
 import GardenerSprite from './GardenerSprite'
@@ -141,16 +142,6 @@ export default function GardenView() {
   const plantingFor = (type: BedType) =>
     plantingBedType === type ? { occupied: occupiedCells(type), onPick: handlePlantCell } : undefined
 
-  const trees = useMemo(() => {
-    const width = typeof window !== 'undefined' ? window.innerWidth : 1200
-    const n = Math.max(7, Math.floor(width / 150))
-    return Array.from({ length: n }, (_, t) => {
-      const scale = 0.7 + Math.random() * 0.9
-      const left = 2 + t * (96 / Math.max(1, n - 1)) + (Math.random() * 4 - 2)
-      return { left, scale, delay: Math.random() * 1.2, z: Math.round(scale * 10) }
-    })
-  }, [])
-
   const fireflies = useMemo(
     () =>
       Array.from({ length: 26 }, () => ({
@@ -194,21 +185,10 @@ export default function GardenView() {
       <SkyStars onSelect={setSelectedStar} />
       <div className="horizon" aria-hidden="true" />
 
-      {/* FOREST FLOOR */}
+      {/* HORIZON / tree-line band — a mountain backdrop (the only trees are planted) */}
       <div className="forest">
+        <MountainRange timeOfDay={timeOfDay} />
         <div className="ground" />
-        {trees.map((t, i) => (
-          <div
-            key={`tr-${i}`}
-            className="tree"
-            style={{ left: `${t.left}%`, transform: `translateX(-50%) scale(${t.scale})`, zIndex: t.z }}
-          >
-            <div className="tree-inner" style={{ animationDelay: `${t.delay}s` }}>
-              <div className="trunk" />
-              <div className="canopy" />
-            </div>
-          </div>
-        ))}
         {fireflies.map((f, i) => (
           <div
             key={`ff-${i}`}

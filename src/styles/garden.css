@@ -102,6 +102,16 @@ html { background: #02110b; } /* letterbox behind the column */
   z-index: 3;
   overflow: visible;
 }
+.stage .mountains {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 150%; /* peaks rise above the slim tree-line band into the sky */
+  z-index: 0;
+  pointer-events: none;
+}
 .stage .forest .ground {
   position: absolute;
   bottom: 0;
