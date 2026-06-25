@@ -191,6 +191,22 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
         )
       } else {
         console.log(`[mushroom] loaded ${tracks.length} tracks; distinct categories:`, cats)
+        // DEBUG: dump where the TCM/description text actually lives on the row
+        // (full column list + metadata + any description_layered/notes) for ~5
+        // tracks across groups, so the Description/Details reader can be tuned.
+        console.log(
+          '[tones] sample track shapes:',
+          tracks.slice(0, 5).map((t) => {
+            const row = t as unknown as Record<string, unknown>
+            return {
+              name: t.name,
+              columns: Object.keys(row),
+              description_layered: row.description_layered,
+              metadata: t.metadata,
+              notes: t.notes,
+            }
+          }),
+        )
       }
 
       const used = new Set<string>()
