@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import type { GardenElement as El } from '../../stores/gardenStore'
+import SpeciesArt, { isSpecies } from './SpeciesArt'
 
 // forest tree ramp per stage: 0 mound → 5 full canopy
 const TREE = [
@@ -16,18 +17,6 @@ const LOW_H = [0, 18, 30, 42, 50, 58]
 const BOOK = [null, { size: 15, stem: 8 }, { size: 21, stem: 14 }, { size: 28, stem: 20 }, { size: 35, stem: 26 }, { size: 44, stem: 32 }]
 // mushroom ramp (forest floor): 0 tiny nub → full glowing mushroom
 const MUSHROOM = [10, 16, 22, 30, 38, 48]
-
-// Chunk 16 bloom species — tinted reuse of the herb/wildflower/tree art.
-// keyed by metadata.render_key (set when a seed is granted).
-const SPECIES: Record<string, { color: string; cat: 'herb' | 'wildflower' | 'tree' }> = {
-  sage: { color: '#9dc183', cat: 'herb' },
-  lavender: { color: '#b57edc', cat: 'herb' },
-  cornflower: { color: '#6495ed', cat: 'wildflower' },
-  starflower: { color: '#ffe39a', cat: 'wildflower' },
-  poppy: { color: '#e0392b', cat: 'wildflower' },
-  oak: { color: '#5f8a46', cat: 'tree' },
-  willow: { color: '#8fce9a', cat: 'tree' },
-}
 
 interface Props {
   element: El
@@ -51,7 +40,6 @@ export default function GardenElement({
   const stage = Math.max(0, Math.min(5, element.growth_stage))
   const movable = element.is_movable !== false
   const renderKey = typeof element.metadata?.render_key === 'string' ? element.metadata.render_key : null
-  const species = renderKey ? SPECIES[renderKey] : null
   const speciesName = typeof element.metadata?.species === 'string' ? element.metadata.species : null
 
   const bedRef = useRef<HTMLElement | null>(null)
@@ -119,6 +107,10 @@ export default function GardenElement({
   const className = `g-el g-${variant === 'forest' ? 'tree' : 'low'}${selected ? ' g-selected' : ''}`
 
   const renderInner = () => {
+    // real per-species floral art (seedling at stage 0, bloom from stage 1)
+    if (renderKey && isSpecies(renderKey)) {
+      return <SpeciesArt renderKey={renderKey} stage={stage} />
+    }
     if (variant === 'forest') {
       if (element.element_type === 'mushroom') {
         return (
@@ -128,39 +120,14 @@ export default function GardenElement({
         )
       }
       const t = TREE[stage]
-      // tinted tree species (oak / willow): seed nub → tinted canopy
-      const canopyBg = species
-        ? `radial-gradient(circle at 45% 35%, rgba(255,255,255,0.35), transparent 55%), ${species.color}`
-        : undefined
       return (
         <>
-          <span
-            className="gt-canopy"
-            style={{ width: `${t.cw}px`, height: `${t.ch}px`, background: canopyBg }}
-          />
+          <span className="gt-canopy" style={{ width: `${t.cw}px`, height: `${t.ch}px` }} />
           {t.trunk > 0 && <span className="gt-trunk" style={{ height: `${t.trunk}px` }} />}
         </>
       )
     }
     if (stage === 0) return <span className="g-seed" />
-    // tinted low species (herbs + wildflowers): blooms the day after planting
-    if (species) {
-      const head = 6 + stage * 2.4
-      const isHerb = species.cat === 'herb'
-      return (
-        <span className="sprout" style={{ height: `${LOW_H[stage]}px` }}>
-          <span
-            className="flower"
-            style={{
-              width: `${head}px`,
-              height: `${head}px`,
-              borderRadius: isHerb ? '45% 45% 50% 50%' : '50%',
-              background: isHerb ? species.color : `radial-gradient(circle,#fff,${species.color})`,
-            }}
-          />
-        </span>
-      )
-    }
     if (element.element_type === 'journal_book') {
       const b = BOOK[stage]!
       return (

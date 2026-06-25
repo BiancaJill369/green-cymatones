@@ -242,6 +242,21 @@ html { background: #02110b; } /* letterbox behind the column */
 .plant-cell:hover { background: rgba(92, 224, 138, 0.32); border-color: #5ce08a; }
 .plant-cell.taken { border-style: solid; border-color: rgba(255, 255, 255, 0.14); background: transparent; cursor: default; }
 @media (prefers-reduced-motion: reduce) { .plant-cell { transition: none; } }
+
+/* ---------------- per-species floral art ---------------- */
+.species-art {
+  display: block;
+  transform-origin: 50% 100%;
+  animation: spSway 5.5s ease-in-out infinite;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.28));
+}
+@keyframes spSway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .species-art { animation: none; }
+}
 .stage .sprout {
   position: relative;
   width: 5px;
