@@ -4,10 +4,11 @@ export interface Cell {
 }
 
 // A section's placement grid in bed-local percentages (x = left%, y = bottom%).
+// The beds are now tall (~64% of the scene), so the grid is many rows deep.
 const COLS = 4
-const ROWS = 3
-const Y_MIN = 16
-const Y_MAX = 72
+const ROWS = 6
+const Y_MIN = 14
+const Y_MAX = 92
 
 export function gridCells(): Cell[] {
   const cells: Cell[] = []

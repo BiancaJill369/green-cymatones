@@ -17,7 +17,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 54%;
+  height: 22%; /* slim sky — sun/moon/stars live here (children are sky-relative) */
   z-index: 1;
   transition: background 0.8s ease;
   background: linear-gradient(180deg, #7ec8f0 0%, #bfe6e0 60%, #e8f6e2 100%);
@@ -70,7 +70,7 @@
 /* ---------------- HORIZON ---------------- */
 .stage .horizon {
   position: absolute;
-  top: 50%;
+  top: 18%;
   left: 0;
   width: 100%;
   height: 8%;
@@ -86,10 +86,10 @@
 /* ---------------- FOREST FLOOR (full-width mid band) ---------------- */
 .stage .forest {
   position: absolute;
-  top: 46%;
+  top: 22%;
   left: 0;
   width: 100%;
-  height: 30%;
+  height: 14%; /* slim tree-line band; trees overflow upward into the sky */
   z-index: 3;
   overflow: visible;
 }
@@ -187,7 +187,7 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 28%;
+  height: 64%; /* the plantable garden dominates the lower two-thirds */
   z-index: 4;
   display: flex;
 }
@@ -221,7 +221,7 @@
   position: absolute;
   transform: translate(-50%, 50%);
   width: 18%;
-  height: 15%;
+  height: 11%;
   border: 1.5px dashed rgba(255, 255, 255, 0.55);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
@@ -343,7 +343,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 54%; /* the sky band */
+  height: 22%; /* match the slim sky band */
   z-index: 2; /* above sky gradient, below forest/creatures */
   opacity: 0; /* hidden at day/noon */
   transition: opacity 0.8s ease;
