@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabaseClient'
+import { composeAngelReading } from '../lib/angelCompose'
 
 // green_angel_readings — static reference data, 999 rows (numbers 1–999).
 export interface AngelReading {
@@ -43,17 +44,14 @@ export const useAngelStore = create<AngelState>((set) => ({
   setEnteredNumber: (value) => set({ enteredNumber: value }),
 
   getReading: async (n) => {
+    // Curated 1–999 rows win; 4-digit numbers (or any missing row) compose at runtime.
     const { data, error } = await supabase
       .from('green_angel_readings')
       .select('*')
       .eq('number', n)
-      .single()
-    if (error) {
-      console.error('getReading error', error)
-      set({ currentReading: null })
-      return null
-    }
-    const reading = data as AngelReading
+      .maybeSingle()
+    if (error) console.error('getReading error', error)
+    const reading = data ? (data as AngelReading) : composeAngelReading(n)
     set({ currentReading: reading })
     return reading
   },

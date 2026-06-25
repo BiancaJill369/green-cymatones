@@ -104,9 +104,9 @@ export default function AngelKeypad({ onReveal, busy }: Props) {
   )
 
   const n = parseInt(entered || '0', 10)
-  const valid = n >= 1 && n <= 999
+  const valid = n >= 1 && n <= 9999
 
-  const addDigit = (d: string) => setEntered((cur) => (cur.length < 3 ? cur + d : cur))
+  const addDigit = (d: string) => setEntered((cur) => (cur.length < 4 ? cur + d : cur))
   const backspace = () => setEntered((cur) => cur.slice(0, -1))
   const clear = () => setEntered('')
   const reveal = () => {
@@ -135,12 +135,12 @@ export default function AngelKeypad({ onReveal, busy }: Props) {
         <Filigree pos="br" />
 
         <div className="title">Angel Numbers</div>
-        <div className="subtitle">Enter 1 – 999</div>
+        <div className="subtitle">Enter 1 – 9999</div>
 
         <div className="display">
           <div className="sheen" />
           <div className={`digits${entered === '' ? ' placeholder' : ''}`}>
-            {entered === '' ? '— — —' : entered}
+            {entered === '' ? '— — — —' : entered}
           </div>
         </div>
 
