@@ -33,15 +33,18 @@ export interface Track {
 
 const TONES_THRESHOLD = 420 // 7 minutes/day → one Resonance Willow seed (Chunk 16)
 
-// The Mushroom shows EXACTLY these 5 groups. Each track's `category` is matched by
-// substring (case/space-insensitive, like violet's normalizeCategory) so we hit the
-// real stored strings without hardcoding their exact casing. Non-matching = hidden.
+// The Mushroom shows EXACTLY these 7 groups, matched against tracks.category_text
+// by substring (case/space/plural-insensitive, like violet's normalizeCategory) so
+// we hit the real stored strings without hardcoding their exact casing. Any track
+// whose category_text matches none of these is hidden.
 const GROUPS: { label: string; match: (c: string) => boolean }[] = [
   { label: 'Bach Flowers', match: (c) => c.includes('bach') },
-  { label: 'Chakra Colors', match: (c) => c.includes('chakra') || c.includes('color') || c.includes('colour') },
+  { label: 'Chakra', match: (c) => c.includes('chakra') },
   { label: 'Emotions', match: (c) => c.includes('emotion') },
-  { label: 'Immune System', match: (c) => c.includes('immune') || c.includes('detox') },
+  { label: 'Minerals', match: (c) => c.includes('mineral') },
   { label: 'Aura', match: (c) => c.includes('aura') },
+  { label: 'For Women', match: (c) => c.includes('women') },
+  { label: 'Immune System', match: (c) => c.includes('immune') },
 ]
 
 interface FrequencyState {
@@ -188,20 +191,14 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
 
       const used = new Set<string>()
       const grouped: Record<string, Track[]> = {}
-      // 1) the five named groups, matched by substring on category
+      // ONLY the 7 named groups, matched by substring on category_text (normalised
+      // onto `category` above). Anything matching none of them is hidden.
       for (const g of GROUPS) {
         const inGroup = tracks.filter(
           (t) => !used.has(t.id) && g.match((t.category || '').toLowerCase()),
         )
         inGroup.forEach((t) => used.add(t.id))
         if (inGroup.length) grouped[g.label] = inGroup
-      }
-      // 2) fallback: anything that didn't match still shows under its real
-      // category, so the Mushroom never sits empty when rows exist.
-      for (const t of tracks) {
-        if (used.has(t.id)) continue
-        const label = (t.category ?? '').trim() || 'Other Frequencies'
-        ;(grouped[label] ||= []).push(t)
       }
       set({ tracksByCategory: grouped })
     },
