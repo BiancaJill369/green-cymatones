@@ -22,7 +22,7 @@
 .easel-sub { color: #9bbfa6; font-size: 0.9rem; text-align: center; }
 
 .easel-head { display: flex; align-items: center; gap: 14px; width: 100%; max-width: 520px; }
-.easel-back, .easel-back-link {
+.easel-back, .easel-back-link, .design-back {
   background: none;
   border: 1px solid rgba(124, 191, 138, 0.4);
   border-radius: 999px;
@@ -32,7 +32,7 @@
   text-decoration: none;
   font-size: 0.85rem;
 }
-.easel-back:hover, .easel-back-link:hover { background: rgba(124, 191, 138, 0.12); }
+.easel-back:hover, .easel-back-link:hover, .design-back:hover { background: rgba(124, 191, 138, 0.12); }
 .easel-back-link { margin-top: 6px; }
 
 /* tab style (not pills): a row with a bottom border + an underline indicator */
@@ -75,8 +75,31 @@
 .swatch.eraser { background: rgba(255, 255, 255, 0.08); color: #f4f9f0; font-size: 0.9rem; }
 
 /* garden coloring */
-.coloring { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.coloring { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+.coloring-pick { color: #9bbfa6; font-size: 0.9rem; text-align: center; }
 .coloring-canvas { width: min(86vw, 400px); height: auto; border-radius: 16px; background: #fff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
+.coloring-canvas.portrait { width: min(92vw, 420px); touch-action: pan-x pan-y pinch-zoom; }
+
+/* 12-design picker */
+.design-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 620px; }
+@media (max-width: 560px) { .design-grid { grid-template-columns: repeat(2, 1fr); } }
+.design-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px;
+  border-radius: 14px; cursor: pointer; color: #cdeccf;
+  border: 1px solid rgba(124, 191, 138, 0.28); background: rgba(255, 255, 255, 0.04);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.design-tile:hover { transform: translateY(-3px); border-color: #5ce08a; }
+.design-thumb { width: 100%; height: auto; border-radius: 8px; background: #fff; display: block; }
+.dt-name { font-family: 'Cormorant Garamond', serif; font-size: 0.98rem; text-align: center; line-height: 1.1; }
+.design-back { align-self: flex-start; }
+
+/* palette docked below the page */
+.palette-dock {
+  position: sticky; bottom: 0; z-index: 2; max-width: none; width: 100%;
+  padding: 10px 8px; background: rgba(6, 29, 20, 0.92); backdrop-filter: blur(6px);
+  border-radius: 14px;
+}
 
 /* pixel mosaic */
 .mosaic { display: flex; flex-direction: column; align-items: center; gap: 14px; }

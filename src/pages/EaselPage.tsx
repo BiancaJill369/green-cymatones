@@ -75,7 +75,7 @@ export default function EaselPage() {
           className={showGallery ? '' : 'active'}
           onClick={() => setShowGallery(false)}
         >
-          Games
+          Art
         </button>
         <button
           type="button"
