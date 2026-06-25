@@ -625,10 +625,64 @@ const ART: Record<string, { seedling: JSX.Element; bloom: JSX.Element }> = {
   },
 }
 
+// The 12 newer species, lifted VERBATIM from florals_more_mock.html (110×130
+// viewBox, plant anchored ≈y118). Rendered via dangerouslySetInnerHTML so the
+// art matches the approved mock exactly; these take priority over the JSX above.
+const ART_HTML: Record<string, { seedling: string; bloom: string }> = {
+  chamomile: {
+    seedling: `<g stroke="#6f9460" stroke-width="2" fill="none" stroke-linecap="round"><path d="M55 116 L55 102"/><path d="M55 108 l-7 -4 M55 104 l7 -4"/></g>`,
+    bloom: `<g stroke="#6f9460" stroke-width="2" fill="none" stroke-linecap="round"><path d="M55 118 C50 96 48 78 46 60"/><path d="M55 118 C58 96 62 80 64 64"/><path d="M50 96 l-8 6 M52 84 l-9 4 M62 92 l8 6 M62 80 l9 3"/></g><g><g transform="translate(46,56)"><g fill="#f4f1e6"><ellipse rx="3" ry="8"/><ellipse rx="3" ry="8" transform="rotate(45)"/><ellipse rx="3" ry="8" transform="rotate(90)"/><ellipse rx="3" ry="8" transform="rotate(135)"/></g><circle r="4" fill="#edc24a"/></g><g transform="translate(64,60)"><g fill="#f4f1e6"><ellipse rx="2.6" ry="7"/><ellipse rx="2.6" ry="7" transform="rotate(45)"/><ellipse rx="2.6" ry="7" transform="rotate(90)"/><ellipse rx="2.6" ry="7" transform="rotate(135)"/></g><circle r="3.4" fill="#edc24a"/></g></g>`,
+  },
+  rosemary: {
+    seedling: `<g stroke="#4f7a4a" stroke-width="2" stroke-linecap="round"><path d="M55 116 L55 100"/><path d="M55 110 l-5 -5 M55 106 l5 -5 M55 102 l-5 -5"/></g>`,
+    bloom: `<path d="M55 118 L55 50" stroke="#5a6f3e" stroke-width="3" stroke-linecap="round"/><g stroke="#4f7a4a" stroke-width="2.4" stroke-linecap="round"><path d="M55 108 l-10 -3 M55 100 l10 -3 M55 92 l-10 -3 M55 84 l10 -3 M55 76 l-9 -3 M55 68 l9 -3 M55 60 l-8 -2 M55 54 l8 -2"/></g><g fill="#7e9ed6"><circle cx="48" cy="98" r="2.4"/><circle cx="62" cy="86" r="2.4"/><circle cx="49" cy="74" r="2.2"/><circle cx="61" cy="62" r="2.2"/></g>`,
+  },
+  mint: {
+    seedling: `<path d="M55 116 L55 104" stroke="#3f8a4a" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="46" cy="100" rx="8" ry="5" fill="#5bbf62" transform="rotate(-25 46 100)"/><ellipse cx="64" cy="100" rx="8" ry="5" fill="#5bbf62" transform="rotate(25 64 100)"/>`,
+    bloom: `<path d="M55 118 L55 46" stroke="#3f8a4a" stroke-width="3" stroke-linecap="round"/><g fill="#5bbf62" stroke="#7fd585" stroke-width="1"><ellipse cx="40" cy="100" rx="12" ry="7" transform="rotate(-28 40 100)"/><ellipse cx="70" cy="100" rx="12" ry="7" transform="rotate(28 70 100)"/><ellipse cx="42" cy="80" rx="11" ry="6" transform="rotate(-24 42 80)"/><ellipse cx="68" cy="80" rx="11" ry="6" transform="rotate(24 68 80)"/><ellipse cx="44" cy="62" rx="10" ry="6" transform="rotate(-20 44 62)"/><ellipse cx="66" cy="62" rx="10" ry="6" transform="rotate(20 66 62)"/></g><g fill="#cfe0f5"><circle cx="55" cy="50" r="2.4"/><circle cx="51" cy="46" r="2"/><circle cx="59" cy="46" r="2"/></g>`,
+  },
+  echinacea: {
+    seedling: `<path d="M55 116 L55 102" stroke="#4a8050" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="47" cy="100" rx="9" ry="4" fill="#5a9a5e" transform="rotate(-20 47 100)"/><ellipse cx="63" cy="100" rx="9" ry="4" fill="#5a9a5e" transform="rotate(20 63 100)"/>`,
+    bloom: `<path d="M55 118 L55 58" stroke="#4a8050" stroke-width="3" stroke-linecap="round"/><path d="M55 96 l-11 -4 M55 84 l11 -4" stroke="#4a8050" stroke-width="2.5" stroke-linecap="round"/><g transform="translate(55,54)"><g fill="#d878a6"><ellipse cx="0" cy="14" rx="5" ry="13"/><ellipse cx="13" cy="8" rx="5" ry="13" transform="rotate(40 13 8)"/><ellipse cx="-13" cy="8" rx="5" ry="13" transform="rotate(-40 -13 8)"/><ellipse cx="17" cy="-4" rx="5" ry="12" transform="rotate(75 17 -4)"/><ellipse cx="-17" cy="-4" rx="5" ry="12" transform="rotate(-75 -17 -4)"/></g><ellipse cx="0" cy="-4" rx="9" ry="7" fill="#d98a3a"/><ellipse cx="0" cy="-5" rx="6" ry="4" fill="#b5662a"/></g>`,
+  },
+  birch: {
+    seedling: `<path d="M55 116 L55 100" stroke="#d9dbcf" stroke-width="3" stroke-linecap="round"/><path d="M55 102 q-9 -3 -12 4 M55 100 q9 -3 12 4" stroke="#4f9a57" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    bloom: `<rect x="52" y="64" width="6" height="54" rx="2" fill="#e6e8df"/><g stroke="#2a2a2a" stroke-width="2" stroke-linecap="round"><path d="M52 80 h6 M52 96 h6 M52 108 h5"/></g><g fill="#4f9a57"><circle cx="55" cy="50" r="20"/><circle cx="40" cy="58" r="13"/><circle cx="70" cy="58" r="13"/><circle cx="50" cy="40" r="11"/></g><g fill="#6cba72"><circle cx="50" cy="48" r="6"/><circle cx="62" cy="54" r="5"/></g>`,
+  },
+  rowan: {
+    seedling: `<path d="M55 116 L55 100" stroke="#7a5a32" stroke-width="3.5" stroke-linecap="round"/><path d="M55 102 q-9 -3 -12 4 M55 100 q9 -3 12 4" stroke="#3f8a4f" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    bloom: `<rect x="51" y="64" width="8" height="54" rx="3" fill="#6b4a2a"/><g fill="#2f7d45"><circle cx="55" cy="50" r="22"/><circle cx="38" cy="58" r="14"/><circle cx="72" cy="58" r="14"/><circle cx="50" cy="38" r="12"/></g><g fill="#d23b32"><circle cx="46" cy="56" r="2.6"/><circle cx="52" cy="60" r="2.6"/><circle cx="58" cy="55" r="2.6"/><circle cx="64" cy="60" r="2.6"/><circle cx="55" cy="48" r="2.6"/></g>`,
+  },
+  cherry_blossom: {
+    seedling: `<path d="M55 116 L55 100" stroke="#7a5a45" stroke-width="3.5" stroke-linecap="round"/><path d="M55 102 q-9 -3 -12 4 M55 100 q9 -3 12 4" stroke="#67b86f" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    bloom: `<rect x="51" y="66" width="8" height="52" rx="3" fill="#7a5a45"/><path d="M55 80 L42 70 M55 88 L68 76" stroke="#7a5a45" stroke-width="4" stroke-linecap="round"/><g fill="#f6c6da"><circle cx="55" cy="50" r="22"/><circle cx="38" cy="58" r="14"/><circle cx="72" cy="58" r="14"/><circle cx="50" cy="38" r="12"/><circle cx="66" cy="42" r="11"/></g><g fill="#fff0f5"><circle cx="50" cy="50" r="6"/><circle cx="64" cy="54" r="5"/><circle cx="56" cy="44" r="4"/></g>`,
+  },
+  daisy: {
+    seedling: `<path d="M55 116 L55 102" stroke="#4a9a55" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="47" cy="100" rx="8" ry="4" fill="#5aaa60" transform="rotate(-20 47 100)"/>`,
+    bloom: `<path d="M55 118 L55 60" stroke="#4a9a55" stroke-width="2.5" stroke-linecap="round"/><path d="M55 92 l-10 -4 M55 82 l10 -4" stroke="#4a9a55" stroke-width="2.5" stroke-linecap="round"/><g transform="translate(55,54)"><g fill="#fbfbf4"><ellipse rx="4" ry="14"/><ellipse rx="4" ry="14" transform="rotate(40)"/><ellipse rx="4" ry="14" transform="rotate(80)"/><ellipse rx="4" ry="14" transform="rotate(120)"/><ellipse rx="4" ry="14" transform="rotate(160)"/></g><circle r="6.5" fill="#f1c43e"/></g>`,
+  },
+  buttercup: {
+    seedling: `<path d="M55 116 L55 102" stroke="#4a9a55" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="63" cy="100" rx="8" ry="4" fill="#5aaa60" transform="rotate(20 63 100)"/>`,
+    bloom: `<path d="M55 118 C53 92 57 76 55 58" stroke="#4a9a55" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M55 94 l-10 -3 M55 84 l10 -3" stroke="#4a9a55" stroke-width="2.5" stroke-linecap="round"/><g transform="translate(55,54)" fill="#f7d23a"><ellipse cx="0" cy="-9" rx="8" ry="9"/><ellipse cx="-9" cy="3" rx="8" ry="9"/><ellipse cx="9" cy="3" rx="8" ry="9"/><ellipse cx="-5" cy="9" rx="7" ry="8"/><ellipse cx="5" cy="9" rx="7" ry="8"/></g><circle cx="55" cy="54" r="4" fill="#e8a72e"/>`,
+  },
+  foxglove: {
+    seedling: `<ellipse cx="49" cy="110" rx="11" ry="5" fill="#4a8a52" transform="rotate(-12 49 110)"/><ellipse cx="62" cy="112" rx="10" ry="5" fill="#5a9a60" transform="rotate(12 62 112)"/>`,
+    bloom: `<path d="M55 118 L55 42" stroke="#4a8a52" stroke-width="3" stroke-linecap="round"/><g fill="#cf7fc4"><ellipse cx="46" cy="100" rx="7" ry="9"/><ellipse cx="64" cy="92" rx="7" ry="9"/><ellipse cx="47" cy="82" rx="6.5" ry="8.5"/><ellipse cx="63" cy="74" rx="6" ry="8"/><ellipse cx="49" cy="66" rx="5.5" ry="7"/><ellipse cx="60" cy="58" rx="5" ry="6.5"/><ellipse cx="54" cy="48" rx="4.5" ry="6"/></g><g fill="#f2d9ee" opacity=".8"><circle cx="46" cy="103" r="2"/><circle cx="64" cy="95" r="2"/><circle cx="47" cy="85" r="1.8"/></g>`,
+  },
+  forget_me_not: {
+    seedling: `<path d="M55 116 L55 104" stroke="#5a9a60" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="47" cy="102" rx="7" ry="3.5" fill="#6aaa6f" transform="rotate(-18 47 102)"/>`,
+    bloom: `<g stroke="#5a9a60" stroke-width="2" fill="none" stroke-linecap="round"><path d="M55 118 C50 98 46 84 44 70"/><path d="M55 118 C56 98 56 82 56 68"/><path d="M55 118 C60 98 66 84 68 72"/></g><g><g transform="translate(44,66)" fill="#7fa8e6"><circle cx="-5" cy="0" r="3.4"/><circle cx="5" cy="0" r="3.4"/><circle cx="0" cy="-5" r="3.4"/><circle cx="0" cy="5" r="3.4"/><circle r="2.4" fill="#f3d24a"/></g><g transform="translate(56,62)" fill="#7fa8e6"><circle cx="-4.5" cy="0" r="3"/><circle cx="4.5" cy="0" r="3"/><circle cx="0" cy="-4.5" r="3"/><circle cx="0" cy="4.5" r="3"/><circle r="2.2" fill="#f3d24a"/></g><g transform="translate(68,70)" fill="#7fa8e6"><circle cx="-4" cy="0" r="2.8"/><circle cx="4" cy="0" r="2.8"/><circle cx="0" cy="-4" r="2.8"/><circle cx="0" cy="4" r="2.8"/><circle r="2" fill="#f3d24a"/></g></g>`,
+  },
+  california_poppy: {
+    seedling: `<g stroke="#7fae8a" stroke-width="2" fill="none" stroke-linecap="round"><path d="M55 116 L52 102 M55 116 L58 104 M55 116 L55 100"/></g>`,
+    bloom: `<path d="M55 118 C53 94 57 78 55 60" stroke="#6f9e7a" stroke-width="2.5" fill="none" stroke-linecap="round"/><g stroke="#9fc6a8" stroke-width="1.5" fill="none" stroke-linecap="round"><path d="M50 96 l-6 8 M50 96 l-9 4 M62 88 l7 7 M62 88 l9 2"/></g><g transform="translate(55,54)" fill="#f08a1e"><ellipse cx="0" cy="-10" rx="11" ry="13"/><ellipse cx="-11" cy="3" rx="11" ry="13"/><ellipse cx="11" cy="3" rx="11" ry="13"/><ellipse cx="0" cy="10" rx="10" ry="11"/></g><circle cx="55" cy="54" r="4" fill="#e06e12"/>`,
+  },
+}
+
 const TREES = new Set(['oak', 'willow', 'birch', 'rowan', 'cherry_blossom'])
 
 export function isSpecies(renderKey: string | null): boolean {
-  return !!renderKey && renderKey in ART
+  return !!renderKey && (renderKey in ART || renderKey in ART_HTML)
 }
 
 export default function SpeciesArt({
@@ -638,8 +692,9 @@ export default function SpeciesArt({
   renderKey: string
   stage: number
 }) {
+  const html = ART_HTML[renderKey]
   const def = ART[renderKey]
-  if (!def) return null
+  if (!html && !def) return null
   const bloom = stage >= 1
   const isTree = TREES.has(renderKey)
   // seedling small; bloom grows gently with the day-based stage (art only)
@@ -648,6 +703,23 @@ export default function SpeciesArt({
     : isTree
       ? 34
       : 28
+
+  // the 12 newer species render from the verbatim mock SVG (110×130 system,
+  // cropped to the plant base so it anchors at the cell)
+  if (html) {
+    return (
+      <svg
+        className="species-art"
+        viewBox="0 0 110 122"
+        height={h}
+        width={h * (110 / 122)}
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        dangerouslySetInnerHTML={{ __html: bloom ? html.bloom : html.seedling }}
+      />
+    )
+  }
+
   return (
     <svg
       className="species-art"
@@ -657,7 +729,7 @@ export default function SpeciesArt({
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {bloom ? def.bloom : def.seedling}
+      {bloom ? def!.bloom : def!.seedling}
     </svg>
   )
 }
