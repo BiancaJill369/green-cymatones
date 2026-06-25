@@ -3,9 +3,18 @@
    Night is driven by a `.night` class on .stage (from useTimeOfDay).
    All motion is disabled under prefers-reduced-motion. */
 
+/* Portrait-first: the garden is a tall column, full-screen on phones and
+   centered (letterboxed) on desktop. The transform makes this column the
+   containing block for its position:fixed children (dock / mini-player /
+   panels), so all the chrome stays inside the portrait frame too. */
+html { background: #02110b; } /* letterbox behind the column */
 .stage {
   position: fixed;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: min(100vw, 52vh);
+  transform: translateX(-50%);
   overflow: hidden;
   background: #05140d;
   font-family: 'Inter', system-ui, sans-serif;
@@ -220,8 +229,9 @@
 .plant-cell {
   position: absolute;
   transform: translate(-50%, 50%);
-  width: 18%;
-  height: 11%;
+  /* fixed touch-sized targets regardless of how tall/short the section is */
+  width: 38px;
+  height: 34px;
   border: 1.5px dashed rgba(255, 255, 255, 0.55);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);

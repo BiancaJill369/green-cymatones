@@ -229,7 +229,7 @@ export default function GardenView() {
           />
         ))}
         {plantingBedType === 'forest_floor' && (
-          <PlantGrid occupied={occupiedCells('forest_floor')} onPick={handlePlantCell} />
+          <PlantGrid occupied={occupiedCells('forest_floor')} onPick={handlePlantCell} rows={3} />
         )}
       </div>
 
