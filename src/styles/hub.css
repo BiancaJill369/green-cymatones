@@ -1,23 +1,25 @@
 /* green.cymatones.com — Garden Hub (Chunk 15-pre): in-scene hotspots, overlay panels,
    persistent mini-player. Garden stays mounted behind every panel. */
 
-/* ---- ONE feature menu dock (all launchers together, above the beds) ---- */
+/* ---- ONE feature menu, docked to the bottom edge ---- */
 .feature-menu {
-  position: absolute;
-  left: 50%;
-  bottom: 32%;
-  transform: translateX(-50%);
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 16;
   display: flex;
+  justify-content: safe center; /* centered when it fits; left-aligned (reachable) when it scrolls */
   gap: 8px;
-  max-width: 96vw;
-  padding: 10px 12px;
+  width: 100%;
+  /* clear the iPhone home indicator */
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
   overflow-x: auto;
-  background: rgba(6, 29, 20, 0.45);
-  border: 1px solid rgba(124, 191, 138, 0.3);
-  border-radius: 18px;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  background: rgba(6, 29, 20, 0.62);
+  border-top: 1px solid rgba(124, 191, 138, 0.3);
+  border-radius: 18px 18px 0 0;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.4);
   scrollbar-width: none;
 }
 .feature-menu::-webkit-scrollbar { display: none; }
@@ -152,7 +154,8 @@
 .mini-player {
   position: fixed;
   left: 50%;
-  bottom: 16px;
+  /* float just above the bottom feature dock (+ home indicator) */
+  bottom: calc(86px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   z-index: 60;
   display: flex;
