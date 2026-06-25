@@ -103,6 +103,7 @@ interface GardenState {
     category: string
     species: string
     plantedAt: string
+    position?: { x: number; y: number }
   }) => Promise<GardenElement | null>
   toggleEditMode: () => void
   selectElement: (id: string | null) => void
@@ -139,10 +140,14 @@ export const useGardenStore = create<GardenState>((set, get) => ({
         beds = refetched.data ?? []
       }
 
+      // Only user-planted seeds show in the beds. seed_source='manual' is what
+      // plantFromBag writes; legacy auto-planted greenery (oracle_draw /
+      // journal_entry / tuning_seed) is excluded so empty beds look empty.
       const { data: elemData } = await supabase
         .from('green_garden_elements')
         .select('*')
         .eq('user_id', userId)
+        .eq('seed_source', 'manual')
       const elements = (elemData ?? []) as GardenElement[]
 
       await applyGrowth(elements)
@@ -156,7 +161,7 @@ export const useGardenStore = create<GardenState>((set, get) => ({
 
   // Plant a granted seed. category routes it to the right bed; render_key/species
   // ride in metadata so GardenElement can draw the species (Chunk 16).
-  plantSeedling: async ({ renderKey, category, species, plantedAt }) => {
+  plantSeedling: async ({ renderKey, category, species, plantedAt, position }) => {
     const userId = get().userId
     if (!userId) return null
     const bedType: BedType =
@@ -182,8 +187,8 @@ export const useGardenStore = create<GardenState>((set, get) => ({
         bed_id: bed.id,
         element_type: elementType,
         seed_source: 'manual',
-        position_x: 12 + Math.random() * 76,
-        position_y: 14 + Math.random() * 64,
+        position_x: position ? position.x : 12 + Math.random() * 76,
+        position_y: position ? position.y : 14 + Math.random() * 64,
         growth_stage: 0,
         growth_started_at: plantedAt,
         metadata: { render_key: renderKey, category, species },

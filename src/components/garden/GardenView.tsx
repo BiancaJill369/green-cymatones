@@ -8,6 +8,8 @@ import { useGardenStore } from '../../stores/gardenStore'
 import type { BedType, GardenElement as El } from '../../stores/gardenStore'
 import { useOracleStore } from '../../stores/oracleStore'
 import { useSeedStore } from '../../stores/seedStore'
+import type { BagSeed } from '../../stores/seedStore'
+import { useToastStore } from '../../stores/toastStore'
 import { useSkyStore } from '../../stores/skyStore'
 import type { SkyStar } from '../../stores/skyStore'
 import SkyBackground from './SkyBackground'
@@ -15,6 +17,7 @@ import SkyStars from './SkyStars'
 import StarDetailSheet from './StarDetailSheet'
 import GardenBed from './GardenBed'
 import GardenElement from './GardenElement'
+import PlantGrid, { type Cell } from './PlantGrid'
 import GardenForeground from './GardenForeground'
 import Creatures from './Creatures'
 import Shadowmoss from './Shadowmoss'
@@ -72,10 +75,14 @@ export default function GardenView() {
   const loadTodayGrants = useSeedStore((s) => s.loadTodayGrants)
   const loadBag = useSeedStore((s) => s.loadBag)
   const bagCount = useSeedStore((s) => s.bag.length)
+  const plantFromBag = useSeedStore((s) => s.plantFromBag)
+  const pushToast = useToastStore((s) => s.push)
 
   const [readOnlyEl, setReadOnlyEl] = useState<El | null>(null)
   const [selectedStar, setSelectedStar] = useState<SkyStar | null>(null)
   const [showMirror, setShowMirror] = useState(false)
+  // a seed picked from the bag, now being placed on its section's grid
+  const [plantingSeed, setPlantingSeed] = useState<BagSeed | null>(null)
 
   // Which feature panel is open is driven by the URL (?panel=…), so the pages'
   // existing "Back to garden" links (→ /garden) close the panel for free, and
@@ -106,6 +113,33 @@ export default function GardenView() {
     const bed = beds.find((b) => b.bed_type === type)
     return bed ? elements.filter((e) => e.bed_id === bed.id) : []
   }
+
+  // Planting: a bagged seed's category decides which section's grid is active.
+  const plantingBedType: BedType | null = plantingSeed
+    ? plantingSeed.bloom.category === 'tree'
+      ? 'forest_floor'
+      : plantingSeed.bloom.category === 'herb'
+        ? 'herb_garden'
+        : 'wild_meadow'
+    : null
+
+  const occupiedCells = (type: BedType): Cell[] =>
+    elementsFor(type).map((e) => ({ x: e.position_x, y: e.position_y }))
+
+  const handlePlantCell = async (cell: Cell) => {
+    if (!plantingSeed) return
+    const seed = plantingSeed
+    setPlantingSeed(null)
+    const ok = await plantFromBag(seed, cell)
+    pushToast(
+      ok
+        ? `🌱 ${seed.bloom.display_name} planted — it’ll bloom by tomorrow`
+        : 'Could not plant there — try again',
+    )
+  }
+
+  const plantingFor = (type: BedType) =>
+    plantingBedType === type ? { occupied: occupiedCells(type), onPick: handlePlantCell } : undefined
 
   const trees = useMemo(() => {
     const width = typeof window !== 'undefined' ? window.innerWidth : 1200
@@ -194,6 +228,9 @@ export default function GardenView() {
             onMove={handleMove}
           />
         ))}
+        {plantingBedType === 'forest_floor' && (
+          <PlantGrid occupied={occupiedCells('forest_floor')} onPick={handlePlantCell} />
+        )}
       </div>
 
       {/* FOREGROUND beds */}
@@ -207,6 +244,7 @@ export default function GardenView() {
           onSelect={handleSelect}
           onLongPress={handleLongPress}
           onMove={handleMove}
+          planting={plantingFor('herb_garden')}
           divider
         />
         <GardenBed
@@ -218,6 +256,7 @@ export default function GardenView() {
           onSelect={handleSelect}
           onLongPress={handleLongPress}
           onMove={handleMove}
+          planting={plantingFor('wild_meadow')}
         />
       </div>
 
@@ -229,7 +268,7 @@ export default function GardenView() {
       <GardenerSprite />
 
       {/* ONE feature menu — all launchers together in a dock above the beds */}
-      {!isEditMode && (
+      {!isEditMode && !plantingSeed && (
         <nav className="feature-menu" aria-label="Garden features">
           {MENU.map((m) => (
             <button
@@ -246,6 +285,19 @@ export default function GardenView() {
             </button>
           ))}
         </nav>
+      )}
+
+      {/* PLANT mode — tap a grid cell in the highlighted section */}
+      {plantingSeed && (
+        <div className="plant-banner">
+          <span>
+            Tap a cell in your {plantingSeed.bloom.category === 'tree' ? 'Forest Floor' : plantingSeed.bloom.category === 'herb' ? 'Herb Garden' : 'Wild Meadow'} to plant your{' '}
+            <strong>{plantingSeed.bloom.display_name}</strong>
+          </span>
+          <button type="button" className="plant-cancel" onClick={() => setPlantingSeed(null)}>
+            Cancel
+          </button>
+        </div>
       )}
 
       {/* HUD */}
@@ -409,6 +461,10 @@ export default function GardenView() {
               {activePanel === 'sky' && <SkyPanel />}
               {activePanel === 'seedbag' && (
                 <SeedBagPanel
+                  onPlant={(seed) => {
+                    closePanel()
+                    setPlantingSeed(seed)
+                  }}
                   onArrange={() => {
                     closePanel()
                     if (!isEditMode) toggleEditMode()

@@ -34,7 +34,7 @@ interface SeedState {
     activityType: string
     sourceKey: string
   }) => Promise<GrantResult>
-  plantFromBag: (seed: BagSeed) => Promise<boolean>
+  plantFromBag: (seed: BagSeed, position: { x: number; y: number }) => Promise<boolean>
 }
 
 export const useSeedStore = create<SeedState>((set, get) => ({
@@ -119,13 +119,14 @@ export const useSeedStore = create<SeedState>((set, get) => ({
     return { granted: true, bloom }
   },
 
-  // Plant a bagged seed into its bed; it blooms over the next day (Chunk 7a growth).
-  plantFromBag: async (seed) => {
+  // Plant a bagged seed at a chosen grid cell; it blooms over the next day.
+  plantFromBag: async (seed, position) => {
     const element = await useGardenStore.getState().plantSeedling({
       renderKey: seed.bloom.render_key,
       category: seed.bloom.category,
       species: seed.bloom.display_name,
       plantedAt: new Date().toISOString(),
+      position,
     })
     if (!element) return false
     await supabase.from('green_seed_grants').update({ element_id: element.id }).eq('id', seed.id)
