@@ -24,7 +24,7 @@ const STYLES = `
   box-shadow:0 10px 30px rgba(0,0,0,.3);text-align:left}
 .sm-bubble::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
   border:9px solid transparent;border-top-color:rgba(255,255,255,.96);border-bottom:0}
-.sm-iam{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.15rem;color:#0c3a25;line-height:1.4}
+.sm-iam{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:1.36rem;color:#06251a;line-height:1.45;letter-spacing:.01em}
 .sm-row{display:flex;align-items:center;gap:8px;margin-top:10px}
 .sm-heart{font-size:1.3rem;cursor:pointer;background:none;border:none;padding:0;line-height:1;color:#e0392b;
   filter:grayscale(1) opacity(.5);transition:filter .2s ease,transform .2s ease}
@@ -82,7 +82,9 @@ export default function Shadowmoss() {
       if (cancelled) return
       if (useCompanionsStore.getState().rendezvous) return after(1200, sit) // locked
       speak()
-      after(4800, () => {
+      // hold the affirmation ~10s so it's easy to finish reading (and the
+      // heart-to-save stays tappable the whole time); the cat won't wander off early.
+      after(10000, () => {
         if (cancelled) return
         setBubble(false)
         after(1200, move)
