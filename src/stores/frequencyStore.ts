@@ -45,6 +45,10 @@ const GROUPS: { label: string; match: (c: string) => boolean }[] = [
   { label: 'Aura', match: (c) => c.includes('aura') },
   { label: 'For Women', match: (c) => c.includes('women') },
   { label: 'Immune System', match: (c) => c.includes('immune') },
+  { label: 'Eyes', match: (c) => c.includes('eye') },
+  { label: 'Nose', match: (c) => c.includes('nose') },
+  { label: 'Hair', match: (c) => c.includes('hair') },
+  { label: 'Lungs', match: (c) => c.includes('lung') },
 ]
 
 interface FrequencyState {
