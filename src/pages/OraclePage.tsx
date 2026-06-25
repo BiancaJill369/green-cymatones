@@ -12,11 +12,11 @@ import type { DrawnEntry } from '../components/oracle/DeckSelector'
 import CardDraw from '../components/oracle/CardDraw'
 import { deckKind } from '../components/oracle/DeckArt'
 
-// each oracle deck grants its own bloom (one per deck per day)
-const ORACLE_SOURCE: Record<BedType, string> = {
-  herb_garden: 'oracle_herb',
-  forest_floor: 'oracle_forest',
-  wild_meadow: 'oracle_wildmeadow',
+// each oracle deck rolls from its own species pool (one seed per deck per day)
+const ORACLE_DECK_KEY: Record<BedType, string> = {
+  herb_garden: 'herb',
+  forest_floor: 'forest',
+  wild_meadow: 'wildmeadow',
 }
 
 export default function OraclePage() {
@@ -66,10 +66,13 @@ export default function OraclePage() {
     setBusy(false)
     setResult(r)
 
-    // grant the deck's bloom seed (capped one per deck per day)
+    // roll a seed from the deck's species pool (capped one per deck per day)
     if (r.isNew && r.bedType) {
-      const sourceKey = ORACLE_SOURCE[r.bedType]
-      const g = await grantSeed({ userId: user.id, activityType: sourceKey, sourceKey })
+      const g = await grantSeed({
+        userId: user.id,
+        activityType: 'oracle',
+        deckKey: ORACLE_DECK_KEY[r.bedType],
+      })
       if (g.granted && g.bloom) {
         pushToast(`🌱 You earned a ${g.bloom.display_name} seed — it's waiting in your Seed Bag`)
       }

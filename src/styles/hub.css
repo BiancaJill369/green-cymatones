@@ -91,7 +91,8 @@
 .sb-list { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-direction: column; gap: 10px; }
 .sb-item { width: 100%; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(124, 191, 138, 0.25); border-radius: 12px; padding: 10px 14px; background: rgba(255, 255, 255, 0.04); color: inherit; text-align: left; cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease; }
 .sb-item:hover { border-color: #5ce08a; background: rgba(92, 224, 138, 0.1); }
-.sb-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+.sb-icon { width: 34px; height: 40px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: center; }
+.sb-icon svg { height: 38px; width: auto; }
 .sb-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .sb-name { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: #eaf3ea; }
 .sb-bed { font-size: 0.8rem; color: #9bbfa6; }

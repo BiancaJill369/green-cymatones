@@ -71,7 +71,7 @@ export default function GardenView() {
   const oracleLoaded = useOracleStore((s) => s.isLoaded)
   const loadDecks = useOracleStore((s) => s.loadDecks)
   const loadStars = useSkyStore((s) => s.loadStars)
-  const loadLegend = useSeedStore((s) => s.loadLegend)
+  const loadSpecies = useSeedStore((s) => s.loadSpecies)
   const loadTodayGrants = useSeedStore((s) => s.loadTodayGrants)
   const loadBag = useSeedStore((s) => s.loadBag)
   const bagCount = useSeedStore((s) => s.bag.length)
@@ -99,11 +99,11 @@ export default function GardenView() {
     if (user?.id) {
       void loadGarden(user.id)
       void loadStars(user.id)
-      void loadLegend()
+      void loadSpecies()
       void loadTodayGrants(user.id)
       void loadBag(user.id)
     }
-  }, [user?.id, loadGarden, loadStars, loadLegend, loadTodayGrants, loadBag])
+  }, [user?.id, loadGarden, loadStars, loadSpecies, loadTodayGrants, loadBag])
 
   useEffect(() => {
     if (!oracleLoaded) void loadDecks()
@@ -291,7 +291,7 @@ export default function GardenView() {
       {plantingSeed && (
         <div className="plant-banner">
           <span>
-            Tap a cell in your {plantingSeed.bloom.category === 'tree' ? 'Forest Floor' : plantingSeed.bloom.category === 'herb' ? 'Herb Garden' : 'Wild Meadow'} to plant your{' '}
+            Tap a cell in your {plantingSeed.bloom.category === 'tree' ? 'Tree Grove' : plantingSeed.bloom.category === 'herb' ? 'Herb Garden' : 'Wild Meadow'} to plant your{' '}
             <strong>{plantingSeed.bloom.display_name}</strong>
           </span>
           <button type="button" className="plant-cancel" onClick={() => setPlantingSeed(null)}>

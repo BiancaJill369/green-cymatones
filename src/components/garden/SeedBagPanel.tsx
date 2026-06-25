@@ -2,21 +2,11 @@ import { useEffect, useMemo } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useSeedStore } from '../../stores/seedStore'
 import type { BagSeed } from '../../stores/seedStore'
-
-// little emblem per bloom species
-const SEED_ICON: Record<string, string> = {
-  sage: '🌿',
-  lavender: '💜',
-  cornflower: '🌸',
-  starflower: '⭐',
-  poppy: '🌺',
-  oak: '🌳',
-  willow: '🌲',
-}
+import SpeciesArt from './SpeciesArt'
 
 const BED_LABEL: Record<string, string> = {
   herb: 'Herb Garden',
-  tree: 'Forest Floor',
+  tree: 'Tree Grove',
   wildflower: 'Wild Meadow',
 }
 
@@ -71,7 +61,9 @@ export default function SeedBagPanel({
             {groups.map((g) => (
               <li key={g.key}>
                 <button type="button" className="sb-item" onClick={() => onPlant(g.seed)}>
-                  <span className="sb-icon">{SEED_ICON[g.seed.bloom.render_key] ?? '🌱'}</span>
+                  <span className="sb-icon">
+                    <SpeciesArt renderKey={g.seed.bloom.render_key} stage={0} />
+                  </span>
                   <span className="sb-meta">
                     <span className="sb-name">{g.seed.bloom.display_name}</span>
                     <span className="sb-bed">{BED_LABEL[g.seed.bloom.category] ?? 'Garden'}</span>

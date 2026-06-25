@@ -43,7 +43,7 @@ export default function SaveBar({ gameType, gameRef, onSaved }: Props) {
     const state = gameRef.current.getState()
 
     await saveCreation({ userId: user.id, gameType, title: title.trim() || 'Untitled', thumbnail, state })
-    const g = await grantSeed({ userId: user.id, activityType: 'art', sourceKey: 'art' })
+    const g = await grantSeed({ userId: user.id, activityType: 'art' })
     setSaving(false)
     setTitle('')
     if (g.granted && g.bloom) {

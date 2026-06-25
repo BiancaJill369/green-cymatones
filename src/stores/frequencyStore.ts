@@ -121,7 +121,7 @@ export const useFrequencyStore = create<FrequencyState>((set, get) => {
       if (!seed.todayGrants.includes('tones')) {
         tonesGateBusy = true
         try {
-          const r = await seed.grantSeed({ userId, activityType: 'tones', sourceKey: 'tones' })
+          const r = await seed.grantSeed({ userId, activityType: 'tones' })
           if (r.granted && r.bloom) {
             useToastStore
               .getState()
